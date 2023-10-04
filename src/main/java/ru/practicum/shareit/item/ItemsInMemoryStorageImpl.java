@@ -88,9 +88,9 @@ public class ItemsInMemoryStorageImpl implements ItemInMemoryStorageDao {
         String finalText = text.toLowerCase();
         List<Item> itemSearch = new ArrayList<>();
         if (!text.isEmpty()) {
-            itemSearch = items.values().stream().
-                    filter(item -> item.getAvailable().equals(true)).
-                    filter(item -> item.getName().toLowerCase().contains(finalText) ||
+            itemSearch = items.values().stream()
+                    .filter(item -> item.getAvailable().equals(true))
+                    .filter(item -> item.getName().toLowerCase().contains(finalText) ||
                             item.getDescription().toLowerCase().contains(finalText)).collect(toList());
         }
 
