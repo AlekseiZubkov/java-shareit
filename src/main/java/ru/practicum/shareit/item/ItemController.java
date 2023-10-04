@@ -54,6 +54,5 @@ public class ItemController {
         log.info("Получен GET-запрос  поиск вещи с текстом={}", text);
         return itemService.getItemsBySearch(text);
     }
-
 }
 
