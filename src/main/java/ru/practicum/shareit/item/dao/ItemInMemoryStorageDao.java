@@ -1,8 +1,6 @@
 package ru.practicum.shareit.item.dao;
 
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
 
 import java.util.List;
 
@@ -11,11 +9,12 @@ public interface ItemInMemoryStorageDao {
 
     Item create(Item item);
 
-    Item update(Item item, Long idItem,Long idOwner);
+    Item update(Item item, Long idItem, Long idOwner);
 
     void delete(long id);
 
     Item getItemById(long id);
+
     List<Item> getAllItemOwner(Long idOwner);
 
     List<Item> getItemsBySearch(String text);
