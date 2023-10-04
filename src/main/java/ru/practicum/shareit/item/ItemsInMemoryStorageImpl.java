@@ -86,15 +86,15 @@ public class ItemsInMemoryStorageImpl implements ItemInMemoryStorageDao {
     @Override
     public List<Item> getItemsBySearch(String text) {
         String finalText = text.toLowerCase();
-        List<Item> ItemSearch = new ArrayList<>();
+        List<Item> itemSearch = new ArrayList<>();
         if (!text.isEmpty()) {
-            ItemSearch = items.values().stream().
+            itemSearch = items.values().stream().
                     filter(item -> item.getAvailable().equals(true)).
                     filter(item -> item.getName().toLowerCase().contains(finalText) ||
                             item.getDescription().toLowerCase().contains(finalText)).collect(toList());
         }
 
-        return ItemSearch;
+        return itemSearch;
     }
 }
 
