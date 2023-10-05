@@ -62,12 +62,12 @@ public class UsersInMemoryStorageImpl implements UsersInMemoryStorageDao {
 
     @Override
     public List<UserDto> getAll() {
-        List<UserDto> UsersDto = new ArrayList<>();
+        List<UserDto> userDtos = new ArrayList<>();
         for (User user : users.values()) {
-            UsersDto.add(userMapper.toUserDto(user));
+            userDtos.add(userMapper.toUserDto(user));
         }
 
-        return UsersDto;
+        return userDtos;
     }
 
     @Override
