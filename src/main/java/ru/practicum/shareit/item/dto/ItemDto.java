@@ -15,12 +15,12 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemDto {
-    Long id;
+    private Long id;
     @NotEmpty
-    String name;
+    private String name;
     @NotEmpty
-    String description;
+    private String description;
     @NotNull
-    Boolean available;
-    ItemRequest request;
+    private Boolean available;
+    private ItemRequest request;
 }

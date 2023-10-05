@@ -13,10 +13,10 @@ import javax.validation.constraints.Email;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    long id;
+   private Long id;
 
-    String name;
+    private String name;
 
     @Email(message = "Неправильный адрес электронной почты")
-    String email;
+    private String email;
 }

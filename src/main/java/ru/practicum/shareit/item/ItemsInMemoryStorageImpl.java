@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dao.ItemInMemoryStorageDao;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
@@ -19,16 +20,20 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class ItemsInMemoryStorageImpl implements ItemInMemoryStorageDao {
     private final Map<Long, Item> items = new HashMap<>();
-
+    private ItemMapper itemMapper;
     private long idItems = 1;
 
     @Override
-    public List<Item> getAll() {
-        return new ArrayList<>(items.values());
+    public List<ItemDto> getAll() {
+        List<ItemDto> itemsDto = new ArrayList<>();
+        for (Item item : items.values()) {
+            itemsDto.add(itemMapper.toItemDto(item));
+        }
+        return itemsDto;
     }
+
 
     @Override
     public Item create(Item item) {
@@ -40,31 +45,33 @@ public class ItemsInMemoryStorageImpl implements ItemInMemoryStorageDao {
     }
 
     @Override
-    public Item update(Item item, Long idItem, Long idOwner) {
+    public Item update(ItemDto itemDto, Long idItem, Long idOwner) {
+        Item item = items.get(idItem);
         if (!items.containsKey(idItem)) {
             throw new UserIdException("Id вещи не найден");
         }
-        if (item.getId() == (null)) {
+        if (itemDto.getId() == null) {
             item.setId(idItem);
         }
-        if (item.getName() == null) {
-            item.setName(items.get(idItem).getName());
+        if (itemDto.getName() != null) {
+            item.setName(itemDto.getName());
         }
-        if (item.getDescription() == null) {
-            item.setDescription(items.get(idItem).getDescription());
+        if (itemDto.getDescription() != null) {
+            item.setDescription(itemDto.getDescription());
         }
-
-        if (item.getAvailable() == null) {
-            item.setAvailable(items.get(idItem).getAvailable());
+        System.out.println("item.getAvailable() " + item.getAvailable());
+        System.out.println("itemDto.getAvailable() " + itemDto.getAvailable());
+        if (item.getAvailable() != itemDto.getAvailable() && itemDto.getAvailable() != null) {
+            System.out.println("oooooooooooooooooooooooooooooo");
+            item.setAvailable(itemDto.getAvailable());
         }
-        items.put(idItem, item);
-
+        System.out.println("++++++++++++++item " + item);
         return item;
     }
 
     @Override
     public void delete(long id) {
-
+        items.remove(id);
     }
 
     @Override

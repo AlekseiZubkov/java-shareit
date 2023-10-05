@@ -5,7 +5,9 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.dao.UsersInMemoryStorageDao;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.exeption.EmailException;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
@@ -22,38 +24,35 @@ import java.util.Map;
 
 public class UsersInMemoryStorageImpl implements UsersInMemoryStorageDao {
     private final Map<Long, User> users = new HashMap<>();
-
+    private final UserMapper userMapper = new UserMapper();
     private long id = 1;
 
     @Override
-    public User create(User user) {
+    public UserDto create(UserDto userDto) {
+        User user = userMapper.toUser(userDto);
         if (!checkEmail(user)) {
             user.setId(id++);
             users.put(user.getId(), user);
             System.out.println("Users" + users);
         }
-        return user;
+        return userMapper.toUserDto(user);
     }
 
     @Override
-    public User update(User user, long id) {
+    public UserDto update(UserDto userDto, long id) {
         if (!users.containsKey(id)) {
             throw new UserIdException("Id не найден");
         }
-        User oldUser = users.get(id);
+        User user = userMapper.toUser(userDto);
+        User updateUser = users.get(id);
         if (user.getName() != null) {
-            oldUser.setName(user.getName());
+            updateUser.setName(user.getName());
         }
-        if (user.getEmail() != null && !oldUser.getEmail().equals(user.getEmail())) {
+        if (user.getEmail() != null && !updateUser.getEmail().equals(user.getEmail())) {
             checkEmail(user);
-            oldUser.setEmail(user.getEmail());
+            updateUser.setEmail(user.getEmail());
         }
-        users.remove(id);
-        users.put(id, oldUser);
-        System.out.println("OldUsers" + oldUser);
-        System.out.println("User  = " + user);
-        System.out.println("Users" + users);
-        return oldUser;
+        return userMapper.toUserDto(updateUser);
     }
 
     @Override
@@ -62,8 +61,13 @@ public class UsersInMemoryStorageImpl implements UsersInMemoryStorageDao {
     }
 
     @Override
-    public List<User> getAll() {
-        return new ArrayList<>(users.values());
+    public List<UserDto> getAll() {
+        List<UserDto> UsersDto = new ArrayList<>();
+        for (User user : users.values()) {
+            UsersDto.add(userMapper.toUserDto(user));
+        }
+
+        return UsersDto;
     }
 
     @Override

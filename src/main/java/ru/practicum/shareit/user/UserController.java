@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -13,35 +14,37 @@ import java.util.List;
 @RestController
 @Slf4j
 @AllArgsConstructor
+@RequestMapping(path = "/users")
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/users")
-    public List<User> getAll() {
+    @GetMapping
+    public List<UserDto> getAll() {
         log.info("Пришел Get запрос всех пользователей");
         return userService.getAll();
+
     }
 
-    @GetMapping("/users/{id}")
-    public User getUser(@PathVariable long id) {
+    @GetMapping("/{id}")
+    public UserDto getUser(@PathVariable long id) {
         log.info("Пришел Get запрос пользователя с id {}", id);
         return userService.getUser(id);
     }
 
-    @PostMapping(value = "/users")
-    public User create(@Valid @RequestBody User user) {
+    @PostMapping
+    public UserDto create(@Valid @RequestBody UserDto user) {
         log.info("Пришел Post запрос пользователя");
         return userService.create(user);
     }
 
-    @PatchMapping("/users/{id}")
-    public User updateUser(@Valid @RequestBody User user, @PathVariable Long id) {
+    @PatchMapping("/{id}")
+    public UserDto update(@Valid @RequestBody UserDto user, @PathVariable Long id) {
         log.info("Пришел Patch запрос обновления пользователя");
         return userService.updateUser(user, id);
     }
 
-    @DeleteMapping("/users/{id}")
-    public void deleteUser(@PathVariable long id) {
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable long id) {
         log.info("Пришел DELETE запрос пользователя с id {}", id);
         userService.deleteUser(id);
     }

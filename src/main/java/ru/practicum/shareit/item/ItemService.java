@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.toList;
 public class ItemService {
     private final ItemInMemoryStorageDao itemStorage;
     private final ItemMapper mapper;
-    UsersInMemoryStorageDao userStorage;
+    private final UsersInMemoryStorageDao userStorage;
 
     public ItemDto getItemById(long itemId) {
         return mapper.toItemDto(itemStorage.getItemById(itemId));
@@ -30,13 +30,18 @@ public class ItemService {
 
     }
 
+    public void delete(Long id) {
+        itemStorage.delete(id);
+
+    }
+
     public ItemDto update(ItemDto itemDto, Long idItem, Long idOwner) {
         checkUserFind(idOwner);
 
         if (!checkItemOwner(idItem, idOwner)) {
             throw new UserIdException("Пользователь с id  = " + idOwner + "не является владельцем вещи с id " + idItem);
         }
-        return mapper.toItemDto(itemStorage.update(mapper.toItem(itemDto, idOwner), idItem, idOwner));
+        return mapper.toItemDto(itemStorage.update(itemDto, idItem, idOwner));
     }
 
 

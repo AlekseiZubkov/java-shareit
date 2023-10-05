@@ -32,7 +32,7 @@ public class ItemController {
         return itemService.getItemById(itemId);
     }
 
-    @ResponseBody
+
     @PostMapping
     public ItemDto create(@Valid @RequestBody ItemDto itemDto, @RequestHeader(OWNER) Long ownerId) {
         log.info("Получен POST-запрос на добавление вещи владельцем с id={}", ownerId);
@@ -40,7 +40,7 @@ public class ItemController {
         return itemService.create(itemDto, ownerId);
     }
 
-    @ResponseBody
+
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestBody ItemDto itemDto, @PathVariable Long itemId,
                           @RequestHeader(OWNER) Long ownerId) {
@@ -53,6 +53,12 @@ public class ItemController {
     public List<ItemDto> getItemsBySearchQuery(@RequestParam String text) {
         log.info("Получен GET-запрос  поиск вещи с текстом={}", text);
         return itemService.getItemsBySearch(text);
+    }
+
+    @DeleteMapping("/{itemId}")
+    public void delete(@PathVariable Long itemId) {
+        log.info("Получен Delete-запрос на удаление вещи с id={}", itemId);
+        itemService.delete(itemId);
     }
 }
 

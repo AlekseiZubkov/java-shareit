@@ -14,12 +14,12 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Item {
-    Long id;
-    String name;
-    String description;
+    private Long id;
+    private String name;
+    private String description;
     @NotNull
-    Boolean available;
-    Long owner; //id владельца вещи
-    ItemRequest request;
+    private Boolean available;
+    private Long owner; //id владельца вещи
+    private ItemRequest request;
 
 }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dao.UsersInMemoryStorageDao;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 
@@ -13,25 +14,27 @@ import java.util.List;
 public class UserService {
     private final UsersInMemoryStorageDao userStorage;
 
-    public User getUser(long id) {
+    private final UserMapper userMapper;
+
+    public UserDto getUser(long id) {
         log.info("Выполняется операция запроса пользователя");
 
-        return userStorage.getUserById(id);
+        return userMapper.toUserDto(userStorage.getUserById(id));
     }
 
-    public List<User> getAll() {
+    public List<UserDto> getAll() {
         log.info("Выполняется операция запроса пользователей");
         return userStorage.getAll();
     }
 
-    public User create(User user) {
+    public UserDto create(UserDto user) {
         log.info("Выполняется операция создания пользователя");
         return userStorage.create(user);
     }
 
-    public User updateUser(User user, Long id) {
+    public UserDto updateUser(UserDto userDto, Long id) {
         log.info("Выполняется операция обновления пользователя");
-        return userStorage.update(user, id);
+        return userStorage.update(userDto, id);
     }
 
     public void deleteUser(long id) {
