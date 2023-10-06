@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dao.UsersInMemoryStorageDao;
 import ru.practicum.shareit.user.dto.UserDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,17 +25,22 @@ public class UserService {
 
     public List<UserDto> getAll() {
         log.info("Выполняется операция запроса пользователей");
-        return userStorage.getAll();
+        List<User> users = userStorage.getAll();
+        List<UserDto> userDtos = new ArrayList<>();
+        for (User user : users) {
+            userDtos.add(userMapper.toUserDto(user));
+        }
+        return userDtos;
     }
 
     public UserDto create(UserDto user) {
         log.info("Выполняется операция создания пользователя");
-        return userStorage.create(user);
+        return userMapper.toUserDto(userStorage.create(userMapper.toUser(user)));
     }
 
     public UserDto updateUser(UserDto userDto, Long id) {
         log.info("Выполняется операция обновления пользователя");
-        return userStorage.update(userDto, id);
+        return userMapper.toUserDto(userStorage.update(userMapper.toUser(userDto), id));
     }
 
     public void deleteUser(long id) {

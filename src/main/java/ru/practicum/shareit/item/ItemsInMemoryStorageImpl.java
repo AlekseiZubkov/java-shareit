@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dao.ItemInMemoryStorageDao;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
@@ -22,17 +21,8 @@ import static java.util.stream.Collectors.toList;
 @AllArgsConstructor
 public class ItemsInMemoryStorageImpl implements ItemInMemoryStorageDao {
     private final Map<Long, Item> items = new HashMap<>();
-    private ItemMapper itemMapper;
-    private long idItems = 1;
 
-    @Override
-    public List<ItemDto> getAll() {
-        List<ItemDto> itemsDto = new ArrayList<>();
-        for (Item item : items.values()) {
-            itemsDto.add(itemMapper.toItemDto(item));
-        }
-        return itemsDto;
-    }
+    private long idItems = 1;
 
 
     @Override
@@ -45,28 +35,26 @@ public class ItemsInMemoryStorageImpl implements ItemInMemoryStorageDao {
     }
 
     @Override
-    public Item update(ItemDto itemDto, Long idItem, Long idOwner) {
-        Item item = items.get(idItem);
-        if (!items.containsKey(idItem)) {
+    public Item update(Item item) {
+        Item updateItem = items.get(item.getId());
+        if (!items.containsKey(item.getId())) {
             throw new UserIdException("Id вещи не найден");
         }
-        if (itemDto.getId() == null) {
-            item.setId(idItem);
+        if (item.getId() != null) {
+            updateItem.setId(item.getId());
         }
-        if (itemDto.getName() != null) {
-            item.setName(itemDto.getName());
+        if (item.getName() != null) {
+            updateItem.setName(item.getName());
         }
-        if (itemDto.getDescription() != null) {
-            item.setDescription(itemDto.getDescription());
+        if (item.getDescription() != null) {
+            updateItem.setDescription(item.getDescription());
         }
-        System.out.println("item.getAvailable() " + item.getAvailable());
-        System.out.println("itemDto.getAvailable() " + itemDto.getAvailable());
-        if (item.getAvailable() != itemDto.getAvailable() && itemDto.getAvailable() != null) {
-            System.out.println("oooooooooooooooooooooooooooooo");
-            item.setAvailable(itemDto.getAvailable());
+        if (item.getAvailable() != updateItem.getAvailable() && item.getAvailable() != null) {
+
+            updateItem.setAvailable(item.getAvailable());
         }
-        System.out.println("++++++++++++++item " + item);
-        return item;
+        System.out.println("фзвфеу " + updateItem);
+        return updateItem;
     }
 
     @Override

@@ -5,9 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.dao.UsersInMemoryStorageDao;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.exeption.EmailException;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
@@ -24,26 +22,23 @@ import java.util.Map;
 
 public class UsersInMemoryStorageImpl implements UsersInMemoryStorageDao {
     private final Map<Long, User> users = new HashMap<>();
-    private final UserMapper userMapper = new UserMapper();
     private long id = 1;
 
     @Override
-    public UserDto create(UserDto userDto) {
-        User user = userMapper.toUser(userDto);
+    public User create(User user) {
         if (!checkEmail(user)) {
             user.setId(id++);
             users.put(user.getId(), user);
             System.out.println("Users" + users);
         }
-        return userMapper.toUserDto(user);
+        return user;
     }
 
     @Override
-    public UserDto update(UserDto userDto, long id) {
+    public User update(User user, long id) {
         if (!users.containsKey(id)) {
             throw new UserIdException("Id не найден");
         }
-        User user = userMapper.toUser(userDto);
         User updateUser = users.get(id);
         if (user.getName() != null) {
             updateUser.setName(user.getName());
@@ -52,7 +47,7 @@ public class UsersInMemoryStorageImpl implements UsersInMemoryStorageDao {
             checkEmail(user);
             updateUser.setEmail(user.getEmail());
         }
-        return userMapper.toUserDto(updateUser);
+        return updateUser;
     }
 
     @Override
@@ -61,13 +56,9 @@ public class UsersInMemoryStorageImpl implements UsersInMemoryStorageDao {
     }
 
     @Override
-    public List<UserDto> getAll() {
-        List<UserDto> userDtos = new ArrayList<>();
-        for (User user : users.values()) {
-            userDtos.add(userMapper.toUserDto(user));
-        }
+    public List<User> getAll() {
 
-        return userDtos;
+        return new ArrayList<>(users.values());
     }
 
     @Override

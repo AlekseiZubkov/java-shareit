@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dao.ItemInMemoryStorageDao;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dao.UsersInMemoryStorageDao;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
@@ -41,9 +42,10 @@ public class ItemService {
         if (!checkItemOwner(idItem, idOwner)) {
             throw new UserIdException("Пользователь с id  = " + idOwner + "не является владельцем вещи с id " + idItem);
         }
-        return mapper.toItemDto(itemStorage.update(itemDto, idItem, idOwner));
+        Item item = mapper.toItem(itemDto, idOwner);
+        item.setId(idItem);
+        return mapper.toItemDto(itemStorage.update(item));
     }
-
 
     private void checkUserFind(Long idOwner) {
         if (userStorage.getUserById(idOwner) == null) {
@@ -60,7 +62,6 @@ public class ItemService {
         }
         return false;
     }
-
 
     public List<ItemDto> getAllItemOwner(Long idOwner) {
         return itemStorage.getAllItemOwner(idOwner).stream()
