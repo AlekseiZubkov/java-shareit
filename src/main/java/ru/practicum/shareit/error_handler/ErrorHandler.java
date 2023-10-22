@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.item.exeption.ItemIdException;
 import ru.practicum.shareit.user.exeption.EmailException;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
@@ -23,6 +24,11 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserIdException(UserIdException e) {
         return new ErrorResponse("Недопустимое id", e.getMessage());
+    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleItemIdException(ItemIdException e) {
+        return new ErrorResponse("Недопустимое id вещи", e.getMessage());
     }
 
     @ExceptionHandler

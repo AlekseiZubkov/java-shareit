@@ -53,7 +53,6 @@ public class ItemsInMemoryStorageImpl implements ItemInMemoryStorageDao {
 
             updateItem.setAvailable(item.getAvailable());
         }
-        System.out.println("фзвфеу " + updateItem);
         return updateItem;
     }
 
