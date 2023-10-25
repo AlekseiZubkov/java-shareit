@@ -13,8 +13,6 @@ import java.time.LocalDateTime;
 /**
  * TODO Sprint add-bookings.
  */
-/*@Entity
-@Table(name = "bookings", schema = "public")*/
 @Entity
 @Table(name = "bookings", schema = "public")
 @Data
