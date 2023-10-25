@@ -3,19 +3,15 @@ package ru.practicum.shareit.item;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.dao.ItemInMemoryStorageDao;
-import ru.practicum.shareit.item.dao.JpaRepositoryItem;
+import ru.practicum.shareit.item.dao.ItemJpaRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exeption.ItemIdException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.dao.JpaRepositoryUser;
-import ru.practicum.shareit.user.dao.UsersInMemoryStorageDao;
+import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
@@ -24,8 +20,8 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 @AllArgsConstructor
 public class ItemService {
-    private final JpaRepositoryItem itemRepository;
-    private final JpaRepositoryUser userRepository;
+    private final ItemJpaRepository itemRepository;
+    private final UserJpaRepository userRepository;
     private final ItemMapper itemMapper;
 
 
@@ -100,6 +96,9 @@ public class ItemService {
     }
 
     public List<ItemDto> getItemsBySearch(String text) {
+       if (text.isEmpty()){
+           return List.of();
+       }
         String finalText = text.toLowerCase();
         return itemRepository.findAll().stream()
                 .filter(item -> item.getAvailable().equals(true)) //Фильтрация элементов по условию Available

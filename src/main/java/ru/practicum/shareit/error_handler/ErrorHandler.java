@@ -1,9 +1,13 @@
 package ru.practicum.shareit.error_handler;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.booking.exeption.BookingException;
+import ru.practicum.shareit.booking.exeption.BookingNotOwnerException;
+import ru.practicum.shareit.booking.exeption.StateException;
 import ru.practicum.shareit.item.exeption.ItemIdException;
 import ru.practicum.shareit.user.exeption.EmailException;
 import ru.practicum.shareit.user.exeption.UserIdException;
@@ -36,4 +40,20 @@ public class ErrorHandler {
     public ErrorResponse handleValidUserException(final ValidationException e) {
         return new ErrorResponse("Ошибка валидации", e.getMessage());
     }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleStateException(final StateException e) {
+        return new ErrorResponse("Unknown state: UNSUPPORTED_STATUS", e.getMessage());
+    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleBookingException(final BookingException e) {
+        return new ErrorResponse("Ошибка бронирования", e.getMessage());
+    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleBookingNotOwnerException(final BookingNotOwnerException e) {
+        return new ErrorResponse("Пользователь не является хозяином вещи", e.getMessage());
+    }
+
 }

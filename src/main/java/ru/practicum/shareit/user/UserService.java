@@ -2,10 +2,8 @@ package ru.practicum.shareit.user;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.dao.JpaRepositoryUser;
-import ru.practicum.shareit.user.dao.UsersInMemoryStorageDao;
+import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.exeption.EmailException;
 import ru.practicum.shareit.user.exeption.UserIdException;
@@ -19,7 +17,7 @@ import java.util.Optional;
 @Slf4j
 @AllArgsConstructor
 public class UserService {
-    private final JpaRepositoryUser userRepository;
+    private final UserJpaRepository userRepository;
     private final UserMapper userMapper;
 
 
