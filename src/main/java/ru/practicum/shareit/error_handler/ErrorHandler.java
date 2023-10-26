@@ -1,7 +1,6 @@
 package ru.practicum.shareit.error_handler;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -30,6 +29,7 @@ public class ErrorHandler {
     public ErrorResponse handleUserIdException(UserIdException e) {
         return new ErrorResponse("Недопустимое id", e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleItemIdException(ItemIdException e) {
@@ -41,21 +41,25 @@ public class ErrorHandler {
     public ErrorResponse handleValidUserException(final ValidationException e) {
         return new ErrorResponse("Ошибка валидации", e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleStateException(final StateException e) {
         return new ErrorResponse("Unknown state: UNSUPPORTED_STATUS", e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleBookingException(final BookingException e) {
         return new ErrorResponse("Ошибка бронирования", e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleBookingNotOwnerException(final BookingNotOwnerException e) {
         return new ErrorResponse("Пользователь не является хозяином вещи", e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleCommentException(final CommentException e) {

@@ -45,7 +45,6 @@ public class ItemService {
         if (item.isPresent()) {
             ItemWithBookingDto itemDto = itemMapper.toItemWithBookingDto(item.get());
             if (checkItemOwner(itemId, userId)) {
-                System.out.println("RRRRRRRRRRRRRRR");
                 itemDto.setLastBooking(getBookingLast(itemId));
                 itemDto.setNextBooking(getBookingNext(itemId));
             }
@@ -63,8 +62,7 @@ public class ItemService {
     }
 
     private ItemBooking getBookingLast(Long itemId) {
-        List<Booking> bookingLast = bookingRepository.findFirstByItem_IdAndStatusAndStartBeforeOrderByStartDesc(itemId,Status.APPROVED, LocalDateTime.now());
-        System.out.println("-----bookingLast----------------------------" +bookingLast);
+        List<Booking> bookingLast = bookingRepository.findFirstByItem_IdAndStatusAndStartBeforeOrderByStartDesc(itemId, Status.APPROVED, LocalDateTime.now());
         ItemBooking itemBookingLast = new ItemBooking();
         if (!bookingLast.isEmpty()) {
             itemBookingLast = new ItemBooking(bookingLast.get(0).getId(), bookingLast.get(0).getBooker().getId());
@@ -74,10 +72,10 @@ public class ItemService {
         }
 
     }
+
     private ItemBooking getBookingNext(Long itemId) {
         List<Booking> bookingNext = bookingRepository.findFirstByItem_IdAndStatusAndStartAfterOrderByStartAsc(itemId,
                 Status.APPROVED, LocalDateTime.now());
-        System.out.println("IIIIIIIIIIIIIII" + bookingNext);
         ItemBooking itemBookingNext = null;
         if (!bookingNext.isEmpty()) {
             itemBookingNext = new ItemBooking(bookingNext.get(0).getId(), bookingNext.get(0).getBooker().getId());
@@ -102,9 +100,6 @@ public class ItemService {
     public ItemDto update(ItemDto itemDto, Long idItem, Long idOwner) {
         checkUserFind(idOwner);
         Optional<Item> updateItem = itemRepository.findById(idItem);
-/*        if (updateItem.get() != null) {
-            throw new UserIdException("Id вещи не найден");
-        }*/
         if (itemDto.getId() != null) {
             updateItem.get().setId(itemDto.getId());
         }
