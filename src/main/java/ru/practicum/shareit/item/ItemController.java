@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingDto;
 
@@ -22,7 +23,7 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> getItemsByOwner(@RequestHeader(USER_ID_HEADER) Long idOwner) {
+    public List<ItemWithBookingDto> getItemsByOwner(@RequestHeader(USER_ID_HEADER) Long idOwner) {
         log.info("Получен GET-запрос получение всех вещей владельца с ID={}", idOwner);
         return itemService.getAllItemOwner(idOwner);
     }
@@ -60,6 +61,12 @@ public class ItemController {
     public void delete(@PathVariable Long itemId) {
         log.info("Получен Delete-запрос на удаление вещи с id={}", itemId);
         itemService.delete(itemId);
+    }
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(@RequestHeader(USER_ID_HEADER) Long userId,
+                             @PathVariable Long itemId,
+                             @Valid @RequestBody CommentDto commentDto) {
+        return itemService.createComment(userId, itemId, commentDto);
     }
 }
 

@@ -6,17 +6,24 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dao.BookingJpaRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
+import ru.practicum.shareit.item.dao.CommentJpaRepository;
 import ru.practicum.shareit.item.dao.ItemJpaRepository;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemBooking;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingDto;
+import ru.practicum.shareit.item.exeption.CommentException;
 import ru.practicum.shareit.item.exeption.ItemIdException;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,18 +36,29 @@ public class ItemService {
     private final ItemJpaRepository itemRepository;
     private final UserJpaRepository userRepository;
     private final BookingJpaRepository bookingRepository;
+    private final CommentJpaRepository commentRepository;
     private final ItemMapper itemMapper;
-
+    private final CommentMapper commentMapper;
 
     public ItemWithBookingDto getItemById(Long itemId, Long userId) {
         Optional<Item> item = itemRepository.findById(itemId);
         if (item.isPresent()) {
-            ItemWithBookingDto ItemDto = itemMapper.toItemWithBookingDto(item.get());
+            ItemWithBookingDto itemDto = itemMapper.toItemWithBookingDto(item.get());
             if (checkItemOwner(itemId, userId)) {
-                ItemDto.setLastBooking(getBookingLast(itemId));
-                ItemDto.setNextBooking(getBookingNext(itemId));
+                itemDto.setLastBooking(getBookingLast(itemId));
+                itemDto.setNextBooking(getBookingNext(itemId));
+
             }
-            return ItemDto;
+            List<Comment> comments = commentRepository.findAllByItem_Id(itemId);
+            if (!comments.isEmpty()) {
+                List<CommentDto> commentDtoAll = new ArrayList<>();
+                for (Comment comment : comments) {
+                    CommentDto commentDto = commentMapper.toCommentDto(comment);
+                    commentDtoAll.add(commentDto);
+                }
+                itemDto.setComments(commentDtoAll);
+            }
+            return itemDto;
         } else throw new ItemIdException("Вещь не найдена");
     }
 
@@ -50,8 +68,11 @@ public class ItemService {
         ItemBooking itemBookingLast = new ItemBooking();
         if (!bookingLast.isEmpty()) {
             itemBookingLast = new ItemBooking(bookingLast.get(0).getId(), bookingLast.get(0).getBooker().getId());
+            return itemBookingLast;
+        } else {
+            return null;
         }
-        return itemBookingLast;
+
     }
 
     private ItemBooking getBookingNext(Long itemId) {
@@ -60,8 +81,11 @@ public class ItemService {
         ItemBooking itemBookingNext = new ItemBooking();
         if (!bookingNext.isEmpty()) {
             itemBookingNext = new ItemBooking(bookingNext.get(0).getId(), bookingNext.get(0).getBooker().getId());
+            return itemBookingNext;
+        } else {
+            return null;
         }
-        return itemBookingNext;
+
     }
 
     public ItemDto create(ItemDto itemDto, Long idOwner) {
@@ -110,19 +134,31 @@ public class ItemService {
     }
 
     private boolean checkItemOwner(Long idItem, Long idOwner) {
-        List<ItemDto> itemsL = getAllItemOwner(idOwner);
-        for (ItemDto item : itemsL) {
-            if (item.getId().equals(idItem)) {
-                return true;
-            }
+        Optional<Item> item = itemRepository.findById(idItem);
+        if (item.get().getOwner().getId().equals(idOwner)) {
+            return true;
         }
         return false;
     }
 
-    public List<ItemDto> getAllItemOwner(Long idOwner) {
-        return itemRepository.findAllByOwner_IdOrderById(idOwner).stream()
-                .map(itemMapper::toItemDto)
-                .collect(toList());
+    public List<ItemWithBookingDto> getAllItemOwner(Long idUser) {
+        List<Item> items = itemRepository.findAllByOwner_IdOrderById(idUser);
+        if (!items.isEmpty()) {
+            List<ItemWithBookingDto> ItemsDto = items.stream()
+                    .map(itemMapper::toItemWithBookingDto)
+                    .collect(toList());
+
+            for (ItemWithBookingDto item : ItemsDto) {
+                if (idUser == items.get(0).getOwner().getId()) {
+                    item.setLastBooking(getBookingLast(item.getId()));
+                    item.setNextBooking(getBookingNext(item.getId()));
+                } else {
+
+                }
+
+            }
+            return ItemsDto;
+        } else throw new ItemIdException("Вещь не найдена");
     }
 
     public List<ItemDto> getItemsBySearch(String text) {
@@ -136,5 +172,25 @@ public class ItemService {
                         item.getDescription().toLowerCase().contains(finalText)) // проверка имени, описания на finalText
                 .map(itemMapper::toItemDto)
                 .collect(toList());
+    }
+
+    public CommentDto createComment(Long userId, Long itemId, CommentDto commentDto) {
+        if (checkPermitAddComment(userId, itemId, commentDto)) {
+            Item item = itemRepository.findById(itemId).get();
+            User user = userRepository.findById(userId).get();
+            return commentMapper.toCommentDto(commentRepository.save(commentMapper.toComment(commentDto,
+                    item, user)));
+        } else throw new CommentException("Пользователь не бронировал ранее вещ");
+    }
+
+    private boolean checkPermitAddComment(Long userId, Long itemId, CommentDto commentDto) {
+        List<Booking> booking = bookingRepository.findByItem_IdAndEndBeforeAndStatusAndBooker_Id(itemId
+                , LocalDateTime.now(), Status.APPROVED, userId);
+        if (!booking.isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
+
     }
 }

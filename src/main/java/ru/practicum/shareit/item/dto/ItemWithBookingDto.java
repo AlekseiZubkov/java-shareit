@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
@@ -25,4 +26,5 @@ public class ItemWithBookingDto {
     private Long request;
     ItemBooking lastBooking;
     ItemBooking nextBooking;
+    private List<CommentDto> comments;
 }

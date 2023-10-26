@@ -139,7 +139,7 @@ public class BookingService {
             return bookings;
         } else if (state.equals("CURRENT")) {
             return bookings.stream()
-                    .filter(booking -> booking.getStatus().equals(Status.WAITING))
+                    .filter(booking -> booking.getStatus().equals(Status.APPROVED))
                     .collect(Collectors.toList());
         } else if (state.equals("PAST")) {
             return bookings.stream()

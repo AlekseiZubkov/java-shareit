@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.booking.exeption.BookingException;
 import ru.practicum.shareit.booking.exeption.BookingNotOwnerException;
 import ru.practicum.shareit.booking.exeption.StateException;
+import ru.practicum.shareit.item.exeption.CommentException;
 import ru.practicum.shareit.item.exeption.ItemIdException;
 import ru.practicum.shareit.user.exeption.EmailException;
 import ru.practicum.shareit.user.exeption.UserIdException;
@@ -55,5 +56,9 @@ public class ErrorHandler {
     public ErrorResponse handleBookingNotOwnerException(final BookingNotOwnerException e) {
         return new ErrorResponse("Пользователь не является хозяином вещи", e.getMessage());
     }
-
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleCommentException(final CommentException e) {
+        return new ErrorResponse("Комментарий не может быть оставлен", e.getMessage());
+    }
 }
