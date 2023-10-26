@@ -25,6 +25,7 @@ import ru.practicum.shareit.user.exeption.UserIdException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
@@ -144,7 +145,7 @@ public class ItemService {
                     .collect(toList());
 
             for (ItemWithBookingDto item : itemsDto) {
-                if (idUser == items.get(0).getOwner().getId()) {
+                if (Objects.equals(idUser, items.get(0).getOwner().getId())) {
                     item.setLastBooking(getBookingLast(item.getId()));
                     item.setNextBooking(getBookingNext(item.getId()));
                 }

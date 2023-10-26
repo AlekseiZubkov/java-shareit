@@ -62,7 +62,7 @@ public class UserService {
     private void checkEmail(User checkedUser) {
         List<User> users = userRepository.findAll();
         for (User user : users) {
-            if (user.getEmail().equals(checkedUser.getEmail()) && user.getId() != checkedUser.getId()) {
+            if (user.getEmail().equals(checkedUser.getEmail()) && !Objects.equals(user.getId(), checkedUser.getId())) {
                 throw new EmailException("Email  повторяется");
             }
         }

@@ -70,7 +70,7 @@ public class ItemsInMemoryStorageImpl implements ItemInMemoryStorageDao {
     public List<Item> getAllItemOwner(Long idOwner) {
         List<Item> resultItems = new ArrayList<>();
         for (Item item : items.values()) {
-            if (item.getOwner().equals(idOwner)) {
+            if (item.getOwner().getId().equals(idOwner)) {
                 resultItems.add(item);
             }
         }
