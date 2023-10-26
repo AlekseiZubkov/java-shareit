@@ -31,7 +31,7 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ItemWithBookingDto find(@RequestHeader(USER_ID_HEADER) Long userId,
                                    @PathVariable Long itemId) {
-        return itemService.getItemById(itemId,userId);
+        return itemService.getItemById(itemId, userId);
     }
 
 
@@ -62,10 +62,11 @@ public class ItemController {
         log.info("Получен Delete-запрос на удаление вещи с id={}", itemId);
         itemService.delete(itemId);
     }
+
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@RequestHeader(USER_ID_HEADER) Long userId,
-                             @PathVariable Long itemId,
-                             @Valid @RequestBody CommentDto commentDto) {
+                                    @PathVariable Long itemId,
+                                    @Valid @RequestBody CommentDto commentDto) {
         return itemService.createComment(userId, itemId, commentDto);
     }
 }

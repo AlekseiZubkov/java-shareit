@@ -139,20 +139,17 @@ public class ItemService {
     public List<ItemWithBookingDto> getAllItemOwner(Long idUser) {
         List<Item> items = itemRepository.findAllByOwner_IdOrderById(idUser);
         if (!items.isEmpty()) {
-            List<ItemWithBookingDto> ItemsDto = items.stream()
+            List<ItemWithBookingDto> itemsDto = items.stream()
                     .map(itemMapper::toItemWithBookingDto)
                     .collect(toList());
 
-            for (ItemWithBookingDto item : ItemsDto) {
+            for (ItemWithBookingDto item : itemsDto) {
                 if (idUser == items.get(0).getOwner().getId()) {
                     item.setLastBooking(getBookingLast(item.getId()));
                     item.setNextBooking(getBookingNext(item.getId()));
-                } else {
-
                 }
-
             }
-            return ItemsDto;
+            return itemsDto;
         } else throw new ItemIdException("Вещь не найдена");
     }
 
@@ -186,6 +183,5 @@ public class ItemService {
         } else {
             return false;
         }
-
     }
 }

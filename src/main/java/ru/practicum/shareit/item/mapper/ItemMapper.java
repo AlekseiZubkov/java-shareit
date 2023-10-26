@@ -25,6 +25,7 @@ public class ItemMapper {
                 item.getRequest()
         );
     }
+
     public ItemWithBookingDto toItemWithBookingDto(Item item) {
         return new ItemWithBookingDto(
                 item.getId(),
@@ -48,9 +49,10 @@ public class ItemMapper {
                 itemDto.getRequest() != null ? itemDto.getRequest() : null
         );
     }
-  private User findUser(Long ownerId){
-      Optional<User> user = userRepository.findById(ownerId);
-      return user.get();
-   }
+
+    private User findUser(Long ownerId) {
+        Optional<User> user = userRepository.findById(ownerId);
+        return user.get();
+    }
 
 }

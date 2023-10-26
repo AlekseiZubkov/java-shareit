@@ -19,31 +19,36 @@ import java.util.List;
 public class BookingController {
     private final String BOOKER = "X-Sharer-User-Id";
     private final BookingService bookingService;
+
     @PostMapping
     public BookingDtoOut create(@Valid @RequestBody BookingDto bookingDto, @RequestHeader(BOOKER) Long booker) {
         log.info("Получен POST-запрос на добавление бронирования владельцем с id={}", booker);
 
-        return bookingService.create(bookingDto,booker);
+        return bookingService.create(bookingDto, booker);
     }
+
     @PatchMapping(value = "/{bookingId}")
     public BookingDtoOut amend(@RequestHeader(BOOKER) Long userId,
-                                  @PathVariable Long bookingId,
-                                  @RequestParam boolean approved) {
+                               @PathVariable Long bookingId,
+                               @RequestParam boolean approved) {
         return bookingService.updateBooking(userId, bookingId, approved);
     }
+
     @GetMapping(value = "/{bookingId}")
     public BookingDtoOut find(@RequestHeader(BOOKER) Long userId,
-                                 @PathVariable Long bookingId) {
+                              @PathVariable Long bookingId) {
         return bookingService.findBooking(userId, bookingId);
     }
+
     @GetMapping
     public List<BookingDtoOut> findAllBookingsByBooker(@RequestHeader(BOOKER) Long userId,
                                                        @RequestParam(defaultValue = "ALL") String state) {
         return bookingService.findAllBookingsByBooker(userId, state);
     }
+
     @GetMapping(value = "/owner")
     public List<BookingDtoOut> findAllByOwner(@RequestHeader(BOOKER) Long userId,
-                                                @RequestParam(defaultValue = "ALL") String state) {
-        return bookingService.findAllBookingsByOwner(userId ,state);
+                                              @RequestParam(defaultValue = "ALL") String state) {
+        return bookingService.findAllBookingsByOwner(userId, state);
     }
 }

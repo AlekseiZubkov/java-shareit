@@ -12,6 +12,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class UserMapper {
     private final UserJpaRepository userRepository;
+
     public UserDto toUserDto(User user) {
         return new UserDto(
                 user.getId(),
@@ -20,7 +21,7 @@ public class UserMapper {
         );
     }
 
-    public User toUser(UserDto userDto,Long id) {
+    public User toUser(UserDto userDto, Long id) {
         Optional<User> userOptional = userRepository.findById(id);
         User user = new User();
         if (userOptional.isPresent()) {
@@ -41,6 +42,7 @@ public class UserMapper {
         );
 
     }
+
     public User toNewUser(UserDto dto) {
         return new User(
                 dto.getId(),

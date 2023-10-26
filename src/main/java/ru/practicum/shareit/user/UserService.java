@@ -58,6 +58,7 @@ public class UserService {
         log.info("Выполняется операция удаления пользователя");
         userRepository.deleteById(id);
     }
+
     private void checkEmail(User checkedUser) {
         List<User> users = userRepository.findAll();
         for (User user : users) {
