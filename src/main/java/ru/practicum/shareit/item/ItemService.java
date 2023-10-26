@@ -176,8 +176,8 @@ public class ItemService {
     }
 
     private boolean checkPermitAddComment(Long userId, Long itemId, CommentDto commentDto) {
-        List<Booking> booking = bookingRepository.findByItem_IdAndEndBeforeAndStatusAndBooker_Id(itemId
-                , LocalDateTime.now(), Status.APPROVED, userId);
+        List<Booking> booking = bookingRepository.findByItem_IdAndEndBeforeAndStatusAndBooker_Id(itemId,
+                LocalDateTime.now(), Status.APPROVED, userId);
         if (!booking.isEmpty()) {
             return true;
         } else {
