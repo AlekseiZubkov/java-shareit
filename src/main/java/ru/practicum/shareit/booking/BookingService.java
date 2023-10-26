@@ -19,7 +19,10 @@ import ru.practicum.shareit.user.dao.UserJpaRepository;
 
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -139,12 +142,14 @@ public class BookingService {
             return bookings;
         } else if (state.equals("CURRENT")) {
             return bookings.stream()
-                    .filter(booking -> booking.getStatus().equals(Status.APPROVED))
+                    .filter(booking -> /*booking.getStatus().equals(Status.APPROVED)*/
+                            booking.getStart().isBefore(LocalDateTime.now()) &&
+                                    booking.getEnd().isAfter(LocalDateTime.now()))
                     .collect(Collectors.toList());
         } else if (state.equals("PAST")) {
             return bookings.stream()
-                    .filter(booking -> booking.getStatus().equals(Status.APPROVED) ||
-                            booking.getEnd().isAfter(LocalDateTime.now()))
+                    .filter(booking -> booking.getStatus().equals(Status.APPROVED) &&
+                            booking.getEnd().isBefore(LocalDateTime.now()))
                     .collect(Collectors.toList());
         } else if (state.equals("FUTURE")) {
             return bookings.stream()
