@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.exeption.EmailException;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +21,7 @@ public class UserService {
     private final UserJpaRepository userRepository;
     private final UserMapper userMapper;
 
-
+    @Transactional
     public UserDto getUser(Long id) {
         log.info("Выполняется операция запроса пользователя");
         Optional<User> user = userRepository.findById(id);
@@ -29,6 +30,7 @@ public class UserService {
         } else throw new UserIdException("Пользователь не найден");
     }
 
+    @Transactional
     public List<UserDto> getAll() {
         log.info("Выполняется операция запроса пользователей");
         List<User> users = userRepository.findAll();
@@ -39,12 +41,14 @@ public class UserService {
         return userDtos;
     }
 
+    @Transactional
     public UserDto create(UserDto user) {
         log.info("Выполняется операция создания пользователя");
         User newUser = userMapper.toNewUser(user);
         return userMapper.toUserDto(userRepository.save(newUser));
     }
 
+    @Transactional
     public UserDto updateUser(UserDto userDto, Long id) {
         log.info("Выполняется операция обновления пользователя");
         User user = userMapper.toUser(userDto, id);
@@ -54,11 +58,13 @@ public class UserService {
         return userMapper.toUserDto(userRepository.save(user));
     }
 
+    @Transactional
     public void deleteUser(long id) {
         log.info("Выполняется операция удаления пользователя");
         userRepository.deleteById(id);
     }
 
+    @Transactional
     private void checkEmail(User checkedUser) {
         List<User> users = userRepository.findAll();
         for (User user : users) {

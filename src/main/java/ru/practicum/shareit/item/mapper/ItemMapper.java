@@ -6,15 +6,13 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.dao.UserJpaRepository;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 @Component
 @AllArgsConstructor
 public class ItemMapper {
-    private final UserJpaRepository userRepository;
+
 
     public ItemDto toItemDto(Item item) {
         return new ItemDto(
@@ -39,20 +37,16 @@ public class ItemMapper {
         );
     }
 
-    public Item toItem(ItemDto itemDto, Long ownerId) {
+    public Item toItem(ItemDto itemDto, User user) {
         return new Item(
                 itemDto.getId(),
                 itemDto.getName(),
                 itemDto.getDescription(),
                 itemDto.getAvailable(),
-                findUser(ownerId),
+                user,
                 itemDto.getRequest() != null ? itemDto.getRequest() : null
         );
     }
 
-    private User findUser(Long ownerId) {
-        Optional<User> user = userRepository.findById(ownerId);
-        return user.get();
-    }
 
 }

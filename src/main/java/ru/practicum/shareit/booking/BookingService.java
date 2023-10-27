@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.exeption.BookingException;
 import ru.practicum.shareit.booking.exeption.BookingNotOwnerException;
 import ru.practicum.shareit.booking.exeption.StateException;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.dao.ItemJpaRepository;
 import ru.practicum.shareit.item.exeption.ItemIdException;
@@ -17,6 +18,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dao.UserJpaRepository;
 
+import javax.transaction.Transactional;
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,7 +28,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 
-
 @Service
 @Slf4j
 @AllArgsConstructor
@@ -34,9 +35,9 @@ public class BookingService {
     private final ItemJpaRepository itemRepository;
     private final UserJpaRepository userRepository;
     private final BookingJpaRepository bookingRepository;
-    private BookingMapper bookingMapper;
+    private final BookingMapper bookingMapper;
 
-
+    @Transactional
     public BookingDtoOut create(BookingDto bookingDto, Long bookerId) {
 
         Optional<Item> item = itemRepository.findById(bookingDto.getItemId());
@@ -59,9 +60,10 @@ public class BookingService {
         newBooking.setItem(item.get());
         newBooking.setStart(bookingDto.getStart());
         newBooking.setEnd(bookingDto.getEnd());
-        return BookingMapper.toBookingDtoOut(bookingRepository.save(newBooking));
+        return bookingMapper.toBookingDtoOut(bookingRepository.save(newBooking));
     }
 
+    @Transactional
     public BookingDtoOut updateBooking(Long ownerId, Long bookingId, boolean approved) {
         Optional<Booking> booking = bookingRepository.findById(bookingId);
         if (booking.isPresent()) {
@@ -77,7 +79,7 @@ public class BookingService {
                 } else {
                     updatedBooking.setStatus(Status.REJECTED);
                 }
-                return BookingMapper.toBookingDtoOut(bookingRepository.save(updatedBooking));
+                return bookingMapper.toBookingDtoOut(bookingRepository.save(updatedBooking));
             } else {
                 throw new BookingNotOwnerException("Пользователь не владелец вещи");
             }
@@ -97,11 +99,12 @@ public class BookingService {
         return false;
     }
 
+    @Transactional
     public BookingDtoOut findBooking(Long userId, Long bookingId) {
         Optional<Booking> booking = bookingRepository.findById(bookingId);
         if (booking.isPresent()) {
             if (isOwner(userId, booking.get()) || userId.equals(booking.get().getBooker().getId())) {
-                return BookingMapper.toBookingDtoOut(booking.get());
+                return bookingMapper.toBookingDtoOut(booking.get());
             } else {
                 throw new BookingNotOwnerException("Пользователь не является хозяином или арендатором вещи");
             }
@@ -110,63 +113,77 @@ public class BookingService {
         }
     }
 
-
-    public List<BookingDtoOut> findAllBookingsByBooker(Long userId, String state) {
-        List<Booking> bookings = getBookingsFromState(bookingRepository.findByBookerIdOrderByStartDesc(userId),state);
+    @Transactional
+    public List<BookingDtoOut> findAllBookingsByBooker(Long userId, String stateStr) {
+        State state;
+        try {
+            state = State.valueOf(stateStr);
+        } catch (IllegalArgumentException e) {
+            throw new StateException("Unknown state: " + stateStr);
+        }
+        List<Booking> bookings = getBookingsFromState(bookingRepository.findByBookerIdOrderByStartDesc(userId), state);
 
         if (bookings.isEmpty()) {
             throw new BookingException("Не найдено бронирований у этого пользователя");
         }
         List<BookingDtoOut> bookingDtoOut = new ArrayList<>();
         for (Booking booking : bookings) {
-            bookingDtoOut.add(BookingMapper.toBookingDtoOut(booking));
+            bookingDtoOut.add(bookingMapper.toBookingDtoOut(booking));
         }
         return bookingDtoOut;
     }
 
-    public List<BookingDtoOut> findAllBookingsByOwner(Long userId, String state) {
-        List<Booking> bookings = getBookingsFromState(bookingRepository.findByItem_Owner_IdOrderByStartDesc(userId),state);
+    @Transactional
+    public List<BookingDtoOut> findAllBookingsByOwner(Long userId, String stateStr) {
+        State state;
+        try {
+            state = State.valueOf(stateStr);
+        } catch (IllegalArgumentException e) {
+            throw new StateException("Unknown state: " + stateStr);
+        }
+        List<Booking> bookings = getBookingsFromState(bookingRepository.findByItem_Owner_IdOrderByStartDesc(userId), state);
         if (bookings.isEmpty()) {
             throw new BookingException("Не найдено бронирований у этого пользователя");
         }
         List<BookingDtoOut> bookingDtoOut = new ArrayList<>();
         for (Booking booking : bookings) {
-            bookingDtoOut.add(BookingMapper.toBookingDtoOut(booking));
+            bookingDtoOut.add(bookingMapper.toBookingDtoOut(booking));
         }
 
         return bookingDtoOut;
     }
 
-    private List<Booking> getBookingsFromState(List<Booking> bookings, String state) {
-        if (state.equals("ALL")) {
-            return bookings;
-        } else if (state.equals("CURRENT")) {
-            return bookings.stream()
-                    .filter(booking -> /*booking.getStatus().equals(Status.APPROVED)*/
-                            booking.getStart().isBefore(LocalDateTime.now()) &&
-                                    booking.getEnd().isAfter(LocalDateTime.now()))
-                    .collect(Collectors.toList());
-        } else if (state.equals("PAST")) {
-            return bookings.stream()
-                    .filter(booking -> booking.getStatus().equals(Status.APPROVED) &&
-                            booking.getEnd().isBefore(LocalDateTime.now()))
-                    .collect(Collectors.toList());
-        } else if (state.equals("FUTURE")) {
-            return bookings.stream()
-                    .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
-                    .collect(Collectors.toList());
-        } else if (state.equals("WAITING")) {
-            return bookings.stream()
-                    .filter(booking -> booking.getStatus().equals(Status.WAITING))
-                    .collect(Collectors.toList());
-        } else if (state.equals("REJECTED")) {
-            return bookings.stream()
-                    .filter(booking -> booking.getStatus().equals(Status.REJECTED) ||
-                            booking.getStatus().equals(Status.CANCELED))
-                    .collect(Collectors.toList());
-        } else {
-            throw new StateException("Unknown state: " + state);
-
+    private List<Booking> getBookingsFromState(List<Booking> bookings, State state) {
+        switch (state) {
+            case ALL:
+                return bookings;
+            case CURRENT:
+                return bookings.stream()
+                        .filter(booking ->
+                                booking.getStart().isBefore(LocalDateTime.now()) &&
+                                        booking.getEnd().isAfter(LocalDateTime.now()))
+                        .collect(Collectors.toList());
+            case PAST:
+                return bookings.stream()
+                        .filter(booking ->
+                                booking.getStatus().equals(Status.APPROVED) &&
+                                        booking.getEnd().isBefore(LocalDateTime.now()))
+                        .collect(Collectors.toList());
+            case FUTURE:
+                return bookings.stream()
+                        .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
+                        .collect(Collectors.toList());
+            case WAITING:
+                return bookings.stream()
+                        .filter(booking -> booking.getStatus().equals(Status.WAITING))
+                        .collect(Collectors.toList());
+            case REJECTED:
+                return bookings.stream()
+                        .filter(booking -> booking.getStatus().equals(Status.REJECTED) ||
+                                booking.getStatus().equals(Status.CANCELED))
+                        .collect(Collectors.toList());
+            default:
+                throw new StateException("Unknown state: " + state);
         }
     }
 

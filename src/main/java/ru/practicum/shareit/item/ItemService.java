@@ -22,11 +22,9 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -41,6 +39,7 @@ public class ItemService {
     private final ItemMapper itemMapper;
     private final CommentMapper commentMapper;
 
+    @Transactional
     public ItemWithBookingDto getItemById(Long itemId, Long userId) {
         Optional<Item> item = itemRepository.findById(itemId);
         if (item.isPresent()) {
@@ -87,17 +86,23 @@ public class ItemService {
 
     }
 
+    @Transactional
     public ItemDto create(ItemDto itemDto, Long idOwner) {
         checkUserFind(idOwner);
-        return itemMapper.toItemDto(itemRepository.save(itemMapper.toItem(itemDto, idOwner)));
+        User user = userRepository.findById(idOwner).get();
+
+
+        return itemMapper.toItemDto(itemRepository.save(itemMapper.toItem(itemDto, user)));
 
     }
 
+    @Transactional
     public void delete(Long id) {
         itemRepository.deleteById(id);
 
     }
 
+    @Transactional
     public ItemDto update(ItemDto itemDto, Long idItem, Long idOwner) {
         checkUserFind(idOwner);
         Optional<Item> updateItem = itemRepository.findById(idItem);
@@ -137,6 +142,7 @@ public class ItemService {
         return false;
     }
 
+    @Transactional
     public List<ItemWithBookingDto> getAllItemOwner(Long idUser) {
         List<Item> items = itemRepository.findAllByOwner_IdOrderById(idUser);
         if (!items.isEmpty()) {
@@ -151,24 +157,24 @@ public class ItemService {
                 }
             }
             return itemsDto;
-        } else throw new ItemIdException("Вещь не найдена");
+        } else return List.of();
     }
 
+    @Transactional
     public List<ItemDto> getItemsBySearch(String text) {
         if (text.isEmpty()) {
             return List.of();
         }
         String finalText = text.toLowerCase();
-        return itemRepository.findAll().stream()
-                .filter(item -> item.getAvailable().equals(true)) //Фильтрация элементов по условию Available
-                .filter(item -> item.getName().toLowerCase().contains(finalText) ||
-                        item.getDescription().toLowerCase().contains(finalText)) // проверка имени, описания на finalText
+        return itemRepository.search(finalText).stream()
                 .map(itemMapper::toItemDto)
                 .collect(toList());
     }
 
+    @Transactional
     public CommentDto createComment(Long userId, Long itemId, CommentDto commentDto) {
-        if (checkPermitAddComment(userId, itemId, commentDto)) {
+        if (bookingRepository.existsByItem_IdAndEndBeforeAndStatusAndBooker_Id(itemId,
+                LocalDateTime.now(), Status.APPROVED, userId)) {
             Item item = itemRepository.findById(itemId).get();
             User user = userRepository.findById(userId).get();
             return commentMapper.toCommentDto(commentRepository.save(commentMapper.toComment(commentDto,
@@ -176,13 +182,4 @@ public class ItemService {
         } else throw new CommentException("Пользователь не бронировал ранее вещ");
     }
 
-    private boolean checkPermitAddComment(Long userId, Long itemId, CommentDto commentDto) {
-        List<Booking> booking = bookingRepository.findByItem_IdAndEndBeforeAndStatusAndBooker_Id(itemId,
-                LocalDateTime.now(), Status.APPROVED, userId);
-        if (!booking.isEmpty()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }
