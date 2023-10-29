@@ -3,12 +3,12 @@ package ru.practicum.shareit.user;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.exeption.EmailException;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -21,7 +21,7 @@ public class UserService {
     private final UserJpaRepository userRepository;
     private final UserMapper userMapper;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserDto getUser(Long id) {
         log.info("Выполняется операция запроса пользователя");
         Optional<User> user = userRepository.findById(id);
@@ -30,7 +30,7 @@ public class UserService {
         } else throw new UserIdException("Пользователь не найден");
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<UserDto> getAll() {
         log.info("Выполняется операция запроса пользователей");
         List<User> users = userRepository.findAll();

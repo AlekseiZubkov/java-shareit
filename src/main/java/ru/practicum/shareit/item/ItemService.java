@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dao.BookingJpaRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
@@ -22,9 +23,11 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -39,7 +42,7 @@ public class ItemService {
     private final ItemMapper itemMapper;
     private final CommentMapper commentMapper;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ItemWithBookingDto getItemById(Long itemId, Long userId) {
         Optional<Item> item = itemRepository.findById(itemId);
         if (item.isPresent()) {
@@ -142,7 +145,7 @@ public class ItemService {
         return false;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ItemWithBookingDto> getAllItemOwner(Long idUser) {
         List<Item> items = itemRepository.findAllByOwner_IdOrderById(idUser);
         if (!items.isEmpty()) {
@@ -160,7 +163,7 @@ public class ItemService {
         } else return List.of();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ItemDto> getItemsBySearch(String text) {
         if (text.isEmpty()) {
             return List.of();

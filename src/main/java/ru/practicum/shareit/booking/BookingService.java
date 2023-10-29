@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dao.BookingJpaRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
@@ -18,7 +19,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dao.UserJpaRepository;
 
-import javax.transaction.Transactional;
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -99,7 +99,7 @@ public class BookingService {
         return false;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public BookingDtoOut findBooking(Long userId, Long bookingId) {
         Optional<Booking> booking = bookingRepository.findById(bookingId);
         if (booking.isPresent()) {
@@ -113,7 +113,7 @@ public class BookingService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<BookingDtoOut> findAllBookingsByBooker(Long userId, String stateStr) {
         State state;
         try {
@@ -133,7 +133,7 @@ public class BookingService {
         return bookingDtoOut;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<BookingDtoOut> findAllBookingsByOwner(Long userId, String stateStr) {
         State state;
         try {
