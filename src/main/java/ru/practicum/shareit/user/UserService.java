@@ -64,7 +64,7 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    @Transactional
+
     private void checkEmail(User checkedUser) {
         List<User> users = userRepository.findAll();
         for (User user : users) {
