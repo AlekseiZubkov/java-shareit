@@ -3,29 +3,37 @@ package ru.practicum.shareit.user;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.dao.UsersInMemoryStorageDao;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.exeption.EmailException;
+import ru.practicum.shareit.user.exeption.UserIdException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Slf4j
 @AllArgsConstructor
 public class UserService {
-    private final UsersInMemoryStorageDao userStorage;
-
+    private final UserJpaRepository userRepository;
     private final UserMapper userMapper;
 
-    public UserDto getUser(long id) {
+    @Transactional(readOnly = true)
+    public UserDto getUser(Long id) {
         log.info("Выполняется операция запроса пользователя");
-
-        return userMapper.toUserDto(userStorage.getUserById(id));
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            return userMapper.toUserDto(user.get());
+        } else throw new UserIdException("Пользователь не найден");
     }
 
+    @Transactional(readOnly = true)
     public List<UserDto> getAll() {
         log.info("Выполняется операция запроса пользователей");
-        List<User> users = userStorage.getAll();
+        List<User> users = userRepository.findAll();
         List<UserDto> userDtos = new ArrayList<>();
         for (User user : users) {
             userDtos.add(userMapper.toUserDto(user));
@@ -33,19 +41,37 @@ public class UserService {
         return userDtos;
     }
 
+    @Transactional
     public UserDto create(UserDto user) {
         log.info("Выполняется операция создания пользователя");
-        return userMapper.toUserDto(userStorage.create(userMapper.toUser(user)));
+        User newUser = userMapper.toNewUser(user);
+        return userMapper.toUserDto(userRepository.save(newUser));
     }
 
+    @Transactional
     public UserDto updateUser(UserDto userDto, Long id) {
         log.info("Выполняется операция обновления пользователя");
-        return userMapper.toUserDto(userStorage.update(userMapper.toUser(userDto), id));
+        User user = userMapper.toUser(userDto, id);
+        if (Objects.nonNull(userDto.getEmail())) {
+            checkEmail(user);
+        }
+        return userMapper.toUserDto(userRepository.save(user));
     }
 
+    @Transactional
     public void deleteUser(long id) {
         log.info("Выполняется операция удаления пользователя");
-        userStorage.delete(id);
+        userRepository.deleteById(id);
+    }
+
+
+    private void checkEmail(User checkedUser) {
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            if (user.getEmail().equals(checkedUser.getEmail()) && !Objects.equals(user.getId(), checkedUser.getId())) {
+                throw new EmailException("Email  повторяется");
+            }
+        }
     }
 
 }
