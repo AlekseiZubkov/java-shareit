@@ -10,7 +10,9 @@ public interface ItemJpaRepository extends JpaRepository<Item, Long> {
     List<Item> findAllByOwner_IdOrderById(Long owner);
 
     List<Item> findAllByOwner_Id(Long userId);
+
     List<Item> findAllByRequest_id(Long userId);
+
     @Query(" select i from Item i " +
             "where (upper(i.name) like upper(concat('%', ?1, '%')) " +
             " or upper(i.description) like upper(concat('%', ?1, '%')))" +

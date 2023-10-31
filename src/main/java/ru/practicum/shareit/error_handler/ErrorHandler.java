@@ -25,11 +25,13 @@ public class ErrorHandler {
     public ErrorResponse handleEmailException(EmailException e) {
         return new ErrorResponse("Адрес почты занят ", e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleItemRequestException(ItemRequestException e) {
         return new ErrorResponse("Неверный запрос", e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserIdException(UserIdException e) {
@@ -71,6 +73,7 @@ public class ErrorHandler {
     public ErrorResponse handleCommentException(final CommentException e) {
         return new ErrorResponse("Комментарий не может быть оставлен", e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleItemRequestParamException(final ItemRequestParamException e) {
