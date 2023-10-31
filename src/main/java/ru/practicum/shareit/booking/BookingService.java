@@ -194,10 +194,10 @@ public class BookingService {
     }
 
     private void checkParamRequest(Long from, Long size) {
-        if (from < 0 || size <= 0) {
+        if (from < 0 || size < 0) {
             throw new ValidationException("Параметры запроса отрицательные");
         }
-        if (from == 0 && size == 0) {
+        if (from == 0 || size == 0) {
             throw new ValidationException("Параметры запроса равны 0");
         }
     }
