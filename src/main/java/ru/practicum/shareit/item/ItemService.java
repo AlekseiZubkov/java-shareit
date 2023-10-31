@@ -93,8 +93,6 @@ public class ItemService {
     public ItemDto create(ItemDto itemDto, Long idOwner) {
         checkUserFind(idOwner);
         User user = userRepository.findById(idOwner).get();
-
-
         return itemMapper.toItemDto(itemRepository.save(itemMapper.toItem(itemDto, user)));
 
     }
