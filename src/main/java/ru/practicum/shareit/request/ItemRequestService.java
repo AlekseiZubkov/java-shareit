@@ -3,21 +3,26 @@ package ru.practicum.shareit.request;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dao.BookingJpaRepository;
 import ru.practicum.shareit.item.dao.ItemJpaRepository;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.exeption.ItemRequestException;
+import ru.practicum.shareit.request.exeption.ItemRequestParamException;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -28,6 +33,7 @@ public class ItemRequestService {
     private final BookingJpaRepository bookingRepository;
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRequestMapper itemRequestMapper;
+    private final ItemMapper itemMapper;
 
     public ItemRequestDto create(Long userId, ItemRequestDto itemRequestDto) {
         Optional<User> user = userRepository.findById(userId);
@@ -45,39 +51,76 @@ public class ItemRequestService {
         if (!user.isPresent()) {
             throw new UserIdException("Такого пользователя не существует");
         }
-        List<ItemRequest> ItemRequests = itemRequestRepository.findAllByRequesterId(userId);
-        if (ItemRequests.isEmpty()) {
+        List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequesterId(userId);
+        if (itemRequests.isEmpty()) {
             return new ArrayList<>();
         }
         List<ItemRequestDto> itemRequestsDto = new ArrayList<>();
-        for (ItemRequest request : ItemRequests) {
+        List<Item> items = itemRepository.findAllByRequest_id(userId);
+        for (ItemRequest request : itemRequests) {
             ItemRequestDto itemRequestDto = itemRequestMapper.toItemRequestDto(request);
-            itemRequestDto.setItem(itemRepository.findAllByRequest_id(request.getId()));
+            List<ItemDto> itemsDto = new ArrayList<>();
+            for (Item item : items) {
+                itemsDto.add(itemMapper.toItemDto(item));
+            }
+            itemRequestDto.setItems(itemsDto);
             itemRequestsDto.add(itemRequestDto);
         }
-
         return itemRequestsDto;
     }
 
 
     public List<ItemRequestDto> getAll(Long userId, Long from, Long size) {
+        checkParamRequest(from, size);
         List<ItemRequestDto> itemRequestsDto = new ArrayList<>();
-        PageRequest pageRequest = PageRequest.of(from.intValue(), size.intValue());
-        List<ItemRequest> itemRequests = itemRequestRepository.findAllByOrderByCreatedDesc(pageRequest);
+        PageRequest pageRequest = PageRequest.of(from.intValue() /size.intValue(), size.intValue(),
+                Sort.Direction.DESC, "created");
+        List<ItemRequest> itemRequests = itemRequestRepository.findAll(userId,pageRequest);
         if (itemRequests.isEmpty()) {
             return new ArrayList<>();
         }
-        for (ItemRequest request : itemRequests) {
-            itemRequestsDto.add(itemRequestMapper.toItemRequestDto(request));
+        for (ItemRequest itemRequest : itemRequests) {
+            itemRequestsDto.add(toItemRequestWithItem(itemRequest));
         }
         return itemRequestsDto;
     }
 
     public ItemRequestDto getByID(Long userId, Long requestId) {
-        return null;
+        Optional<User> user = userRepository.findById(userId);
+        Optional<ItemRequest>  itemRequest = itemRequestRepository.findById(requestId);
+        if (!user.isPresent()) {
+            throw new UserIdException("Такого пользователя не существует");
+        }
+        if (!itemRequest.isPresent()){
+            throw new ItemRequestParamException("Такого запроса не существует");
+        }
+        ItemRequestDto itemRequestDto = toItemRequestWithItem(itemRequest.get());
+
+        return itemRequestDto;
     }
 
-/*    private List<Item> getItems(Long ItemId) {
+    private ItemRequestDto toItemRequestWithItem(ItemRequest itemRequest ){
+        ItemRequestDto itemRequestDto = itemRequestMapper.toItemRequestDto(itemRequest);
+        List<Item> items = itemRepository.findAllByRequest_id(itemRequest.getRequester().getId());
+        List<ItemDto> itemsDto = new ArrayList<>();
+        for (Item item : items) {
+            itemsDto.add(itemMapper.toItemDto(item));
+        }
+        itemRequestDto.setItems(itemsDto);
+        return itemRequestDto;
+    }
+    private void checkParamRequest(Long from, Long size){
+        if(from < 0 || size <= 0 ) {
+            throw new ValidationException("Параметры запроса отрицательные");
+        }
+        if (from == 0 && size ==0) {
+    throw new ValidationException("Параметры запроса равны 0");
+}
+
+    }
+
+
+   /* private List<Item> getItems(Long ItemId) {
         return itemRepository.findAllByRequest_id(ItemId);
     }
     public List<Item> filterItemsById(List<Item> itemList, long requestId) {

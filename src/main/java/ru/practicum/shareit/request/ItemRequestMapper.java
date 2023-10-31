@@ -22,7 +22,7 @@ public class ItemRequestMapper {
         return new ItemRequestDto(
                 itemRequest.getId(),
                 itemRequest.getDescription(),
-                itemRequest.getRequester(),
+                itemRequest.getRequester().getId(),
                 itemRequest.getCreated(),
                 List.of());
     }

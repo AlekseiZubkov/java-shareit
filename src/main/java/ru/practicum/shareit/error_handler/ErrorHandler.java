@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.exeption.StateException;
 import ru.practicum.shareit.item.exeption.CommentException;
 import ru.practicum.shareit.item.exeption.ItemIdException;
 import ru.practicum.shareit.request.exeption.ItemRequestException;
+import ru.practicum.shareit.request.exeption.ItemRequestParamException;
 import ru.practicum.shareit.user.exeption.EmailException;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
@@ -69,5 +70,10 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleCommentException(final CommentException e) {
         return new ErrorResponse("Комментарий не может быть оставлен", e.getMessage());
+    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleItemRequestParamException(final ItemRequestParamException e) {
+        return new ErrorResponse("Ошибка запроса", e.getMessage());
     }
 }

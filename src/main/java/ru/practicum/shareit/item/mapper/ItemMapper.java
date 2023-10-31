@@ -6,8 +6,10 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Component
 @AllArgsConstructor
@@ -20,7 +22,7 @@ public class ItemMapper {
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
-                item.getRequest()
+                Optional.ofNullable(item.getRequest()).map(ItemRequest::getId).orElse(null)
         );
     }
 
@@ -30,7 +32,7 @@ public class ItemMapper {
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
-                item.getRequest(),
+                Optional.ofNullable(item.getRequest()).map(ItemRequest::getId).orElse(null),
                 null,
                 null,
                 new ArrayList<>()
@@ -44,8 +46,8 @@ public class ItemMapper {
                 itemDto.getDescription(),
                 itemDto.getAvailable(),
                 user,
-                itemDto.getRequest() != null ? itemDto.getRequest() : null
-        );
+                itemDto.getRequestId() == null ? null : ItemRequest.builder().id(itemDto.getRequestId()).build());
+
     }
 
 

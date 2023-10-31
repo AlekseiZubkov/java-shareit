@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dao.BookingJpaRepository;
@@ -114,14 +116,16 @@ public class BookingService {
     }
 
     @Transactional(readOnly = true)
-    public List<BookingDtoOut> findAllBookingsByBooker(Long userId, String stateStr) {
+    public List<BookingDtoOut> findAllBookingsByBooker(Long userId, String stateStr,Long from,Long size) {
+        checkParamRequest(from,size);
         State state;
+        PageRequest pageRequest = PageRequest.of(from.intValue() /size.intValue(), size.intValue(),Sort.Direction.DESC, "start");
         try {
             state = State.valueOf(stateStr);
         } catch (IllegalArgumentException e) {
             throw new StateException("Unknown state: " + stateStr);
         }
-        List<Booking> bookings = getBookingsFromState(bookingRepository.findByBookerIdOrderByStartDesc(userId), state);
+        List<Booking> bookings = getBookingsFromState(bookingRepository.findByBookerId(userId, pageRequest), state);
 
         if (bookings.isEmpty()) {
             throw new BookingException("Не найдено бронирований у этого пользователя");
@@ -134,14 +138,16 @@ public class BookingService {
     }
 
     @Transactional(readOnly = true)
-    public List<BookingDtoOut> findAllBookingsByOwner(Long userId, String stateStr) {
+    public List<BookingDtoOut> findAllBookingsByOwner(Long userId, String stateStr,Long from,Long size) {
+        checkParamRequest(from,size);
         State state;
+        PageRequest pageRequest = PageRequest.of(from.intValue() /size.intValue(), size.intValue());
         try {
             state = State.valueOf(stateStr);
         } catch (IllegalArgumentException e) {
             throw new StateException("Unknown state: " + stateStr);
         }
-        List<Booking> bookings = getBookingsFromState(bookingRepository.findByItem_Owner_IdOrderByStartDesc(userId), state);
+        List<Booking> bookings = getBookingsFromState(bookingRepository.findByItem_Owner_IdOrderByStartDesc(userId,pageRequest), state);
         if (bookings.isEmpty()) {
             throw new BookingException("Не найдено бронирований у этого пользователя");
         }
@@ -186,5 +192,12 @@ public class BookingService {
                 throw new StateException("Unknown state: " + state);
         }
     }
-
+    private void checkParamRequest(Long from, Long size) {
+        if (from < 0 || size <= 0) {
+            throw new ValidationException("Параметры запроса отрицательные");
+        }
+        if (from == 0 && size == 0) {
+            throw new ValidationException("Параметры запроса равны 0");
+        }
+    }
 }
