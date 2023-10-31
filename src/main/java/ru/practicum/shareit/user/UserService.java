@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.exeption.EmailException;
@@ -54,6 +53,7 @@ public class UserService {
         log.info("Выполняется операция обновления пользователя");
         User user = userMapper.toUser(userDto, id);
         if (Objects.nonNull(userDto.getEmail())) {
+            System.out.println("nen");
             checkEmail(user);
         }
         return userMapper.toUserDto(userRepository.save(user));
@@ -69,6 +69,8 @@ public class UserService {
     private void checkEmail(User checkedUser) {
         List<User> users = userRepository.findAll();
         for (User user : users) {
+            System.out.println("checkedUser" + checkedUser);
+            System.out.println("user1" + user);
             if (user.getEmail().equals(checkedUser.getEmail()) && !Objects.equals(user.getId(), checkedUser.getId())) {
                 throw new EmailException("Email  повторяется");
             }

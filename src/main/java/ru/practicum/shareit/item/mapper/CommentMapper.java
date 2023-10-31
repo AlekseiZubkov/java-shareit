@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Component
 @AllArgsConstructor
 public class CommentMapper {
-    public CommentDto toCommentDto(Comment comment) {
+    public static CommentDto toCommentDto(Comment comment) {
         return new CommentDto(
                 comment.getId(),
                 comment.getText(),
@@ -22,7 +22,7 @@ public class CommentMapper {
         );
     }
 
-    public Comment toComment(CommentDto commentDto, Item item, User user) {
+    public static Comment toComment(CommentDto commentDto, Item item, User user) {
         return new Comment(
                 commentDto.getId(),
                 commentDto.getText(),

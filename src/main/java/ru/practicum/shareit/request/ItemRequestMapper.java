@@ -9,7 +9,7 @@ import java.util.List;
 
 @Component
 public class ItemRequestMapper {
-    public ItemRequest toItemRequest(ItemRequestDto itemRequestDto, User user) {
+    public static ItemRequest toItemRequest(ItemRequestDto itemRequestDto, User user) {
         return new ItemRequest(
                 itemRequestDto.getId(),
                 itemRequestDto.getDescription(),
@@ -18,11 +18,11 @@ public class ItemRequestMapper {
         );
     }
 
-    public ItemRequestDto toItemRequestDto(ItemRequest itemRequest) {
+    public static ItemRequestDto toItemRequestDto(ItemRequest itemRequest) {
         return new ItemRequestDto(
                 itemRequest.getId(),
                 itemRequest.getDescription(),
-                itemRequest.getRequester(),
+                itemRequest.getRequester().getId(),
                 itemRequest.getCreated(),
                 List.of());
     }

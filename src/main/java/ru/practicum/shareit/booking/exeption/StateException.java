@@ -5,14 +5,11 @@ public class StateException extends RuntimeException {
         super(message);
     }
 
-    public StateException() {
-    }
+
 
     public StateException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public StateException(Throwable cause) {
-        super(cause);
-    }
+
 }
