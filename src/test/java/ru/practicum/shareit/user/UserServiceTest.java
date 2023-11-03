@@ -79,7 +79,7 @@ class UserServiceTest {
 
     @Test
     void updateUser() {
-        when(userMapper.toUser(userDto1, userId)).thenReturn(user1);
+        when(userMapper.toUser(userDto1, user1.getId())).thenReturn(user1);
         when(userRepository.save(user1)).thenReturn(user1);
         when(userMapper.toUserDto(user1)).thenReturn(userDto1);
 
