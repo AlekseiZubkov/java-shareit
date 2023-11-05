@@ -28,7 +28,7 @@ public class BookingController {
     }
 
     @PatchMapping(value = "/{bookingId}")
-    public BookingDtoOut amend(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public BookingDtoOut update(@RequestHeader("X-Sharer-User-Id") Long userId,
                                @PathVariable Long bookingId,
                                @RequestParam boolean approved) {
         return bookingService.updateBooking(userId, bookingId, approved);

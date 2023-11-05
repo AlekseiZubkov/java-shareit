@@ -65,7 +65,7 @@ class UserServiceTest {
         List<UserDto> actualUsersDto = userService.getAll();
 
         assertEquals(expectedUsersDto, actualUsersDto);
-        verify(userRepository, times(1)).findAll();
+        verify(userRepository).findAll();
     }
 
     @Test

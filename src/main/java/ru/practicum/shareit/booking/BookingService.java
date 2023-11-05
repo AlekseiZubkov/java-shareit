@@ -55,14 +55,16 @@ public class BookingService {
         if (Objects.equals(item.get().getOwner().getId(), bookerId)) {
             throw new BookingException("Предмет не может быть взят в аренду у себя");
         }
-        Optional<User> booker = userRepository.findById(bookerId);
-        Booking newBooking = new Booking();
+        User booker = userRepository.findById(bookerId).get();
+        Booking newBooking = BookingMapper.toBooking(bookingDto,item.get(),booker,Status.WAITING);
+  /*      Booking newBooking = new Booking();
         newBooking.setStatus(Status.WAITING);
-        newBooking.setBooker(booker.get());
+        newBooking.setBooker(booker);
         newBooking.setItem(item.get());
         newBooking.setStart(bookingDto.getStart());
-        newBooking.setEnd(bookingDto.getEnd());
-        return bookingMapper.toBookingDtoOut(bookingRepository.save(newBooking));
+        newBooking.setEnd(bookingDto.getEnd());*/
+        bookingRepository.save(newBooking);
+        return BookingMapper.toBookingDtoOut(newBooking);
     }
 
     @Transactional
@@ -81,12 +83,12 @@ public class BookingService {
                 } else {
                     updatedBooking.setStatus(Status.REJECTED);
                 }
-                return bookingMapper.toBookingDtoOut(bookingRepository.save(updatedBooking));
+                return BookingMapper.toBookingDtoOut(bookingRepository.save(updatedBooking));
             } else {
                 throw new BookingNotOwnerException("Пользователь не владелец вещи");
             }
         } else {
-            throw new ItemIdException("Вещ не найдена");
+            throw new BookingException("Бронирование не найдено");
         }
 
     }
@@ -106,7 +108,7 @@ public class BookingService {
         Optional<Booking> booking = bookingRepository.findById(bookingId);
         if (booking.isPresent()) {
             if (isOwner(userId, booking.get()) || userId.equals(booking.get().getBooker().getId())) {
-                return bookingMapper.toBookingDtoOut(booking.get());
+                return BookingMapper.toBookingDtoOut(booking.get());
             } else {
                 throw new BookingNotOwnerException("Пользователь не является хозяином или арендатором вещи");
             }
@@ -125,14 +127,16 @@ public class BookingService {
         } catch (IllegalArgumentException e) {
             throw new StateException("Unknown state: " + stateStr);
         }
-        List<Booking> bookings = getBookingsFromState(bookingRepository.findByBookerId(userId, pageRequest), state);
-
+        List<Booking> bookingsL = bookingRepository.findByBookerId(userId, pageRequest);
+        System.out.println("bookingsL-------------" + bookingsL);
+        List<Booking> bookings = getBookingsFromState(bookingsL, state);
+        System.out.println("bookings-------------" + bookings);
         if (bookings.isEmpty()) {
             throw new BookingException("Не найдено бронирований у этого пользователя");
         }
         List<BookingDtoOut> bookingDtoOut = new ArrayList<>();
         for (Booking booking : bookings) {
-            bookingDtoOut.add(bookingMapper.toBookingDtoOut(booking));
+            bookingDtoOut.add(BookingMapper.toBookingDtoOut(booking));
         }
         return bookingDtoOut;
     }
@@ -153,7 +157,7 @@ public class BookingService {
         }
         List<BookingDtoOut> bookingDtoOut = new ArrayList<>();
         for (Booking booking : bookings) {
-            bookingDtoOut.add(bookingMapper.toBookingDtoOut(booking));
+            bookingDtoOut.add(BookingMapper.toBookingDtoOut(booking));
         }
 
         return bookingDtoOut;
@@ -162,20 +166,27 @@ public class BookingService {
     private List<Booking> getBookingsFromState(List<Booking> bookings, State state) {
         switch (state) {
             case ALL:
+                System.out.println("ALL"+ bookings);
                 return bookings;
+
             case CURRENT:
+                System.out.println("CURRENT");
                 return bookings.stream()
                         .filter(booking ->
                                 booking.getStart().isBefore(LocalDateTime.now()) &&
                                         booking.getEnd().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());
             case PAST:
-                return bookings.stream()
-                        .filter(booking ->
-                                booking.getStatus().equals(Status.APPROVED) &&
-                                        booking.getEnd().isBefore(LocalDateTime.now()))
-                        .collect(Collectors.toList());
+                System.out.println("CURRENT--------- ");
+                List<Booking> bookingList = bookings.stream()
+                    .filter(booking ->
+                            booking.getStatus().equals(Status.APPROVED) &&
+                                    booking.getEnd().isBefore(LocalDateTime.now()))
+                    .collect(Collectors.toList());
+                System.out.println("CURRENT--------- " + bookingList);;
+                return bookingList;
             case FUTURE:
+                System.out.println("CURRENT");
                 return bookings.stream()
                         .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());
