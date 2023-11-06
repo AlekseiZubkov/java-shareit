@@ -6,23 +6,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -37,9 +33,9 @@ class BookingControllerTest {
     @MockBean
     BookingService bookingService;
 
-@SneakyThrows
+    @SneakyThrows
     @Test
-    void update()  {
+    void update() {
 
         Long userId = 1L;
         Long bookingId = 1L;
@@ -65,7 +61,8 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.status").value(bookingDtoOut.getStatus().toString()));
         verify(bookingService, times(1)).updateBooking(userId, bookingId, approved);
     }
-@SneakyThrows
+
+    @SneakyThrows
     @Test
     void find() {
 
@@ -90,11 +87,12 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.id").value(bookingDtoOut.getId()))
 
                 .andExpect(jsonPath("$.status").value(bookingDtoOut.getStatus().toString()));
-        verify(bookingService, times(1)).findBooking(userId, bookingId );
+        verify(bookingService, times(1)).findBooking(userId, bookingId);
     }
-@SneakyThrows
+
+    @SneakyThrows
     @Test
-    void findAllBookingsByBooker()  {
+    void findAllBookingsByBooker() {
 
         Long userId = 1L;
         String state = "ALL";
@@ -121,9 +119,10 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$[0].id").value(bookingDtoOut.getId()))
                 .andExpect(jsonPath("$[0].status").value(bookingDtoOut.getStatus().toString()));
     }
-@SneakyThrows
+
+    @SneakyThrows
     @Test
-    void findAllByOwner()  {
+    void findAllByOwner() {
 
         Long userId = 1L;
         String state = "ALL";

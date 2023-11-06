@@ -57,12 +57,7 @@ public class BookingService {
         }
         User booker = userRepository.findById(bookerId).get();
         Booking newBooking = BookingMapper.toBooking(bookingDto,item.get(),booker,Status.WAITING);
-  /*      Booking newBooking = new Booking();
-        newBooking.setStatus(Status.WAITING);
-        newBooking.setBooker(booker);
-        newBooking.setItem(item.get());
-        newBooking.setStart(bookingDto.getStart());
-        newBooking.setEnd(bookingDto.getEnd());*/
+
         bookingRepository.save(newBooking);
         return BookingMapper.toBookingDtoOut(newBooking);
     }
@@ -168,27 +163,21 @@ public class BookingService {
     private List<Booking> getBookingsFromState(List<Booking> bookings, State state) {
         switch (state) {
             case ALL:
-                System.out.println("ALL"+ bookings);
                 return bookings;
-
             case CURRENT:
-                System.out.println("CURRENT");
                 return bookings.stream()
                         .filter(booking ->
                                 booking.getStart().isBefore(LocalDateTime.now()) &&
                                         booking.getEnd().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());
             case PAST:
-                System.out.println("CURRENT--------- ");
                 List<Booking> bookingList = bookings.stream()
                     .filter(booking ->
                             booking.getStatus().equals(Status.APPROVED) &&
                                     booking.getEnd().isBefore(LocalDateTime.now()))
                     .collect(Collectors.toList());
-                System.out.println("CURRENT--------- " + bookingList);;
                 return bookingList;
             case FUTURE:
-                System.out.println("CURRENT");
                 return bookings.stream()
                         .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());

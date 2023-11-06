@@ -98,7 +98,6 @@ class ItemServiceTest {
     }
 
 
-
     @Test
     void createItem_whenUserAndRequestNotFound_thenReturnDto() {
         item.setRequest(null);
@@ -196,9 +195,10 @@ class ItemServiceTest {
         commentDto.setAuthorName("userName");
         commentDto.setText("comment");
         when(bookingRepository
-                .existsByItem_IdAndEndBeforeAndStatusAndBooker_Id(any(Long.class), any(LocalDateTime.class)
-                        , any(Status.class), any(Long.class)))
-                .thenReturn(true);
+                .existsByItem_IdAndEndBeforeAndStatusAndBooker_Id(any(Long.class)
+                        ,any(LocalDateTime.class)
+                        ,any(Status.class),any(Long.class)))
+                        .thenReturn(true);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
