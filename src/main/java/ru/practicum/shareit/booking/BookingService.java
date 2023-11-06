@@ -71,7 +71,9 @@ public class BookingService {
     public BookingDtoOut updateBooking(Long ownerId, Long bookingId, boolean approved) {
         Optional<Booking> booking = bookingRepository.findById(bookingId);
         if (booking.isPresent()) {
+            System.out.println("bookingbooking" + booking);
             Booking updatedBooking = booking.get();
+            System.out.println("updatedBooking" + updatedBooking);
             if ((updatedBooking.getStatus().equals(Status.APPROVED)
                     || updatedBooking.getStatus().equals(Status.REJECTED))
             ) {

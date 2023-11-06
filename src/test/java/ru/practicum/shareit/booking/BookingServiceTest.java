@@ -76,22 +76,6 @@ class BookingServiceTest {
         user.setName("userName");
         user.setEmail("user@email.ru");
 
-        booking = new Booking();
-        booking.setId(bookingId);
-        booking.setStart(current.plusDays(1));
-        booking.setEnd(current.plusDays(2));
-        booking.setItem(item);
-        booking.setBooker(user);
-        booking.setStatus(Status.WAITING);
-
-        outputDto = new BookingDtoOut();
-        outputDto.setId(bookingId);
-        outputDto.setStart(current.plusDays(1));
-        outputDto.setEnd(current.plusDays(2));
-        outputDto.setItem(item);
-        outputDto.setBooker(user);
-        outputDto.setStatus(Status.WAITING);
-
         itemRequest = new ItemRequest();
         itemRequest.setId(requestId);
         itemRequest.setDescription("request description");
@@ -106,13 +90,25 @@ class BookingServiceTest {
         item.setRequest(itemRequest);
         item.setOwner(user);
 
+        booking = new Booking();
+        booking.setId(bookingId);
+        booking.setStart(current.plusDays(2));
+        booking.setEnd(current.plusDays(5));
+        booking.setItem(item);
+        booking.setBooker(user);
+        booking.setStatus(Status.WAITING);
+
+        outputDto = new BookingDtoOut();
+        outputDto.setId(bookingId);
+        outputDto.setStart(current.plusDays(2));
+        outputDto.setEnd(current.plusDays(5));
+        outputDto.setItem(item);
+        outputDto.setBooker(user);
+        outputDto.setStatus(Status.WAITING);
+
 
     }
 
-    @Test
-    void getAllBookingById_WhenBookingFound() {
-
-    }
 
     @Test
     void createBooking_ItemNotFound() {
@@ -124,7 +120,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void createBooking_ItemNotAvailable() {
+    void createBooking_InvalidTimeRange_Exception() {
         Item item = new Item();
         item.setAvailable(false);
 
@@ -159,7 +155,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void updateBooking_whenBookingNotFound_thenNotFoundBookingExceptionThrown() {
+    void updateBooking_whenBookingNotFound_thenBookingExceptionThrown() {
         Boolean approved = true;
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
 
@@ -170,7 +166,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void updateBooking_whenBookingRejected_thenUnsupportedStatusExceptionThrown() {
+    void updateBooking_whenBookingRejected_thenValidationExceptionThrown() {
         Boolean approved = true;
         booking.setStatus(Status.REJECTED);
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
@@ -182,7 +178,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void updateBooking_whenUserIsNotItemOwner_thenAuthOwnerExceptionThrown() {
+    void updateBooking_whenUserIsNotItemOwner_thenBookingNotOwnerExceptionThrown() {
         Boolean approved = true;
         User newUser = new User();
         Item newItem = Item.builder()
@@ -210,6 +206,7 @@ class BookingServiceTest {
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
         when(itemRepository.findAllByOwner_Id(userId)).thenReturn(List.of(item));
         when(bookingRepository.save(booking)).thenReturn(booking);
+
         BookingDtoOut actualDto = bookingService.updateBooking(userId, bookingId, approved);
 
         assertEquals(outputDto, actualDto);

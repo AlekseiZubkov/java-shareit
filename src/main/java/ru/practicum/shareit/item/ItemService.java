@@ -39,14 +39,13 @@ public class ItemService {
     private final UserJpaRepository userRepository;
     private final BookingJpaRepository bookingRepository;
     private final CommentJpaRepository commentRepository;
-    private final ItemMapper itemMapper;
-    private final CommentMapper commentMapper;
+
 
     @Transactional(readOnly = true)
     public ItemWithBookingDto getItemById(Long itemId, Long userId) {
         Optional<Item> item = itemRepository.findById(itemId);
         if (item.isPresent()) {
-            ItemWithBookingDto itemDto = itemMapper.toItemWithBookingDto(item.get());
+            ItemWithBookingDto itemDto = ItemMapper.toItemWithBookingDto(item.get());
             if (checkItemOwner(itemId, userId)) {
                 itemDto.setLastBooking(getBookingLast(itemId));
                 itemDto.setNextBooking(getBookingNext(itemId));
@@ -55,7 +54,7 @@ public class ItemService {
             if (!comments.isEmpty()) {
                 List<CommentDto> commentDtoAll = new ArrayList<>();
                 for (Comment comment : comments) {
-                    CommentDto commentDto = commentMapper.toCommentDto(comment);
+                    CommentDto commentDto = CommentMapper.toCommentDto(comment);
                     commentDtoAll.add(commentDto);
                 }
                 itemDto.setComments(commentDtoAll);
@@ -93,7 +92,7 @@ public class ItemService {
     public ItemDto create(ItemDto itemDto, Long idOwner) {
         checkUserFind(idOwner);
         User user = userRepository.findById(idOwner).get();
-        return itemMapper.toItemDto(itemRepository.save(itemMapper.toItem(itemDto, user)));
+        return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(itemDto, user)));
 
     }
 
@@ -107,6 +106,12 @@ public class ItemService {
     public ItemDto update(ItemDto itemDto, Long idItem, Long idOwner) {
         checkUserFind(idOwner);
         Optional<Item> updateItem = itemRepository.findById(idItem);
+        if (updateItem.isEmpty()) {
+            throw new ItemIdException("вещь не найдена  с id  = " + idItem);
+        }
+        if (!checkItemOwner(idItem, idOwner)) {
+            throw new UserIdException("Пользователь с id  = " + idOwner + "не является владельцем вещи с id " + idItem);
+        }
         if (itemDto.getId() != null) {
             updateItem.get().setId(itemDto.getId());
         }
@@ -119,13 +124,7 @@ public class ItemService {
         if (itemDto.getAvailable() != updateItem.get().getAvailable() && itemDto.getAvailable() != null) {
             updateItem.get().setAvailable(itemDto.getAvailable());
         }
-
-        if (!checkItemOwner(idItem, idOwner)) {
-            throw new UserIdException("Пользователь с id  = " + idOwner + "не является владельцем вещи с id " + idItem);
-        }
-
-
-        return itemMapper.toItemDto(itemRepository.save(updateItem.get()));
+        return ItemMapper.toItemDto(itemRepository.save(updateItem.get()));
     }
 
     private void checkUserFind(Long idOwner) {
@@ -148,7 +147,7 @@ public class ItemService {
         List<Item> items = itemRepository.findAllByOwner_IdOrderById(idUser);
         if (!items.isEmpty()) {
             List<ItemWithBookingDto> itemsDto = items.stream()
-                    .map(itemMapper::toItemWithBookingDto)
+                    .map(ItemMapper::toItemWithBookingDto)
                     .collect(toList());
 
             for (ItemWithBookingDto item : itemsDto) {
@@ -168,7 +167,7 @@ public class ItemService {
         }
         String finalText = text.toLowerCase();
         return itemRepository.search(finalText).stream()
-                .map(itemMapper::toItemDto)
+                .map(ItemMapper::toItemDto)
                 .collect(toList());
     }
 
@@ -178,7 +177,7 @@ public class ItemService {
                 LocalDateTime.now(), Status.APPROVED, userId)) {
             Item item = itemRepository.findById(itemId).get();
             User user = userRepository.findById(userId).get();
-            return commentMapper.toCommentDto(commentRepository.save(commentMapper.toComment(commentDto,
+            return CommentMapper.toCommentDto(commentRepository.save(CommentMapper.toComment(commentDto,
                     item, user)));
         } else throw new CommentException("Пользователь не бронировал ранее вещ");
     }

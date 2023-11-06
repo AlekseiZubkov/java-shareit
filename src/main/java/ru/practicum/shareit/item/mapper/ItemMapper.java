@@ -16,7 +16,7 @@ import java.util.Optional;
 public class ItemMapper {
 
 
-    public ItemDto toItemDto(Item item) {
+    public static ItemDto toItemDto(Item item) {
         return new ItemDto(
                 item.getId(),
                 item.getName(),
@@ -26,7 +26,7 @@ public class ItemMapper {
         );
     }
 
-    public ItemWithBookingDto toItemWithBookingDto(Item item) {
+    public static ItemWithBookingDto toItemWithBookingDto(Item item) {
         return new ItemWithBookingDto(
                 item.getId(),
                 item.getName(),
@@ -39,7 +39,7 @@ public class ItemMapper {
         );
     }
 
-    public Item toItem(ItemDto itemDto, User user) {
+    public static Item toItem(ItemDto itemDto, User user) {
         return new Item(
                 itemDto.getId(),
                 itemDto.getName(),
