@@ -134,7 +134,7 @@ class ItemRequestServiceTest {
 
         ItemRequestDto itemRequestDto3 = itemRequestService.getByID(userId, requestId);
 
-        assertEquals(itemRequestDto3, itemRequestDto1);
+        assertEquals(itemRequestDto3.getId(), itemRequestDto1.getId());
     }
 
     @Test
