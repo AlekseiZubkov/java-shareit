@@ -173,4 +173,13 @@ class ItemControllerTest {
 
         verify(itemService, times(1)).createComment(userId, itemId, commentDto);
     }
+
+    @SneakyThrows
+    @Test
+    void deleteUser() {
+        Long itemId = 1L;
+        mockMvc.perform(delete("/items/{id}", itemId));
+        //.andDo(print());
+        verify(itemService).delete(itemId);
+    }
 }

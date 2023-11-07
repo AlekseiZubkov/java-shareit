@@ -31,8 +31,7 @@ public class ItemRequestService {
     private final UserJpaRepository userRepository;
     private final BookingJpaRepository bookingRepository;
     private final ItemRequestRepository itemRequestRepository;
-    private final ItemRequestMapper itemRequestMapper;
-    private final ItemMapper itemMapper;
+
 
     public ItemRequestDto create(Long userId, ItemRequestDto itemRequestDto) {
         Optional<User> user = userRepository.findById(userId);
@@ -40,9 +39,9 @@ public class ItemRequestService {
         if (!user.isPresent()) {
             throw new UserIdException("Такого пользователя не существует");
         }
-        ItemRequest itemRequest = itemRequestRepository.save(itemRequestMapper.toItemRequest(itemRequestDto, user.get()));
+        ItemRequest itemRequest = itemRequestRepository.save(ItemRequestMapper.toItemRequest(itemRequestDto, user.get()));
 
-        return itemRequestMapper.toItemRequestDto(itemRequest);
+        return ItemRequestMapper.toItemRequestDto(itemRequest);
     }
 
     public List<ItemRequestDto> get(Long userId) {
@@ -57,10 +56,10 @@ public class ItemRequestService {
         List<ItemRequestDto> itemRequestsDto = new ArrayList<>();
         List<Item> items = itemRepository.findAllByRequest_id(userId);
         for (ItemRequest request : itemRequests) {
-            ItemRequestDto itemRequestDto = itemRequestMapper.toItemRequestDto(request);
+            ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(request);
             List<ItemDto> itemsDto = new ArrayList<>();
             for (Item item : items) {
-                itemsDto.add(itemMapper.toItemDto(item));
+                itemsDto.add(ItemMapper.toItemDto(item));
             }
             itemRequestDto.setItems(itemsDto);
             itemRequestsDto.add(itemRequestDto);
@@ -99,11 +98,11 @@ public class ItemRequestService {
     }
 
     private ItemRequestDto toItemRequestWithItem(ItemRequest itemRequest) {
-        ItemRequestDto itemRequestDto = itemRequestMapper.toItemRequestDto(itemRequest);
+        ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(itemRequest);
         List<Item> items = itemRepository.findAllByRequest_id(itemRequest.getRequester().getId());
         List<ItemDto> itemsDto = new ArrayList<>();
         for (Item item : items) {
-            itemsDto.add(itemMapper.toItemDto(item));
+            itemsDto.add(ItemMapper.toItemDto(item));
         }
         itemRequestDto.setItems(itemsDto);
         return itemRequestDto;
@@ -118,14 +117,4 @@ public class ItemRequestService {
         }
 
     }
-
-
-   /* private List<Item> getItems(Long ItemId) {
-        return itemRepository.findAllByRequest_id(ItemId);
-    }
-    public List<Item> filterItemsById(List<Item> itemList, long requestId) {
-        return itemList.stream()
-                .filter(item -> item.getRequest().getId() == requestId)
-                .collect(Collectors.toList());
-    }*/
 }

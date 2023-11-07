@@ -13,6 +13,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.booking.exeption.BookingException;
 import ru.practicum.shareit.booking.exeption.BookingNotOwnerException;
+import ru.practicum.shareit.booking.exeption.StateException;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.dao.ItemJpaRepository;
@@ -20,6 +21,7 @@ import ru.practicum.shareit.item.exeption.ItemIdException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.dao.UserJpaRepository;
 
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
@@ -36,7 +38,8 @@ import static org.mockito.Mockito.*;
 class BookingServiceTest {
     @Mock
     private ItemJpaRepository itemRepository;
-
+    @Mock
+    private UserJpaRepository userRepository;
     @Mock
     private BookingJpaRepository bookingRepository;
     @Mock
@@ -120,7 +123,17 @@ class BookingServiceTest {
     }
 
     @Test
-    void createBooking_InvalidTimeRange_Exception() {
+    void createBooking_ValidationException() {
+
+        when(itemRepository.findById(bookingDto.getItemId())).thenReturn(Optional.empty());
+
+        assertThrows(ItemIdException.class, () -> {
+            bookingService.create(bookingDto, bookerId);
+        });
+    }
+
+    @Test
+    void createBooking_InvalidAvailable_Exception() {
         Item item = new Item();
         item.setAvailable(false);
 
@@ -129,6 +142,45 @@ class BookingServiceTest {
         assertThrows(ValidationException.class, () -> {
             bookingService.create(bookingDto, bookerId);
         });
+    }
+
+    @Test
+    void createBooking_InvalidBooker_Exception() {
+        bookingDto.setEnd(current.plusDays(3));
+        bookingDto.setStart(current.plusDays(2));
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+        assertThrows(BookingException.class, () -> {
+            bookingService.create(bookingDto, userId);
+        });
+    }
+
+    @Test
+    void findAllBookingsByBooker_InvalidState_IllegalArgumentException() {
+        String stateStr = "Unknown";
+        assertThrows(StateException.class, () -> {
+            bookingService.findAllBookingsByBooker(userId, stateStr, 0L, 5L);
+        });
+    }
+
+    @Test
+    void findAllBookingsByOwner_InvalidState_IllegalArgumentException() {
+        String stateStr = "Unknown";
+        assertThrows(StateException.class, () -> {
+            bookingService.findAllBookingsByOwner(userId, stateStr, 0L, 5L);
+        });
+    }
+
+    @Test
+    void createBooking() {
+        Long bookerId = 6L;
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(userRepository.findById(bookerId)).thenReturn(Optional.of(user));
+
+        BookingDtoOut bookingDtoOut = bookingService.create(bookingDto, bookerId);
+        assertEquals(bookingDtoOut.getStart(), bookingDto.getStart());
+        assertEquals(bookingDtoOut.getEnd(), bookingDto.getEnd());
     }
 
     @Test

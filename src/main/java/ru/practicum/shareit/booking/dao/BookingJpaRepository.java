@@ -9,9 +9,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingJpaRepository extends JpaRepository<Booking, Long> {
-    List<Booking> findByBookerId(Long bookerId);
-
-    List<Booking> findAllByItemOwnerId(Long userId);
 
     List<Booking> findByBookerId(Long bookerId, PageRequest pageRequest);
 

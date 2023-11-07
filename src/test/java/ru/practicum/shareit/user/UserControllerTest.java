@@ -20,8 +20,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(controllers = UserController.class)
@@ -34,14 +33,14 @@ class UserControllerTest {
     UserService userService;
     UserDto userDto = UserDto.builder()
             .id(1L)
-            .name("John Doe")
-            .email("john@mail.ru")
+            .name("Alex")
+            .email("Alex@mail.ru")
             .build();
 
     UserDto savedUserDto = UserDto.builder()
             .id(1L)
-            .name("John Doe")
-            .email("john@mail.ru")
+            .name("Alex")
+            .email("Alex@mail.ru")
             .build();
 
     @SneakyThrows
@@ -66,6 +65,15 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
+    void deleteUser() {
+        long userId = 1L;
+        mockMvc.perform(delete("/users/{id}", userId));
+        //.andDo(print());
+        verify(userService).deleteUser(userId);
+    }
+
+    @SneakyThrows
+    @Test
     void create() {
 
         when(userService.create(any(UserDto.class))).thenReturn(savedUserDto);
@@ -74,11 +82,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userDto))
                         .characterEncoding(StandardCharsets.UTF_8.name()))
-                //.andDo(print());
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
-                .andExpect(jsonPath("$.name", is("John Doe")))
-                .andExpect(jsonPath("$.email", is("john@mail.ru")));
+                .andExpect(jsonPath("$.name", is("Alex")))
+                .andExpect(jsonPath("$.email", is("Alex@mail.ru")));
 
         verify(userService).create(userDto);
 
@@ -88,12 +95,6 @@ class UserControllerTest {
     @Test
     void update() {
         long userId = 1L;
-        UserDto updatedUserDto = UserDto.builder()
-                .id(userId)
-                .name("Updated Name")
-                .email("updated@mail.ru")
-                .build();
-
         when(userService.updateUser(any(), any(Long.class)))
                 .thenReturn(userDto);
 
@@ -105,8 +106,8 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(1)))
-                .andExpect(jsonPath("$.name", is("John Doe")))
-                .andExpect(jsonPath("$.email", is("john@mail.ru")));
+                .andExpect(jsonPath("$.name", is("Alex")))
+                .andExpect(jsonPath("$.email", is("Alex@mail.ru")));
 
         verify(userService).updateUser(userDto, userId);
     }

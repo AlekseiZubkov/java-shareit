@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.exeption.EmailException;
+import ru.practicum.shareit.user.exeption.UserIdException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.Optional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -90,6 +93,15 @@ class UserServiceTest {
     }
 
     @Test
+    void updateUser_doublEmail_throwEmailException() {
+        when(userMapper.toUser(userDto1, user1.getId())).thenReturn(user1);
+        user2.setEmail(user1.getEmail());
+        when(userRepository.findAll()).thenReturn(List.of(user2));
+        assertThrows(EmailException.class, () -> userService.updateUser(userDto1, 1L));
+
+    }
+
+    @Test
     void deleteUser() {
         userService.deleteUser(userId);
 
@@ -105,6 +117,13 @@ class UserServiceTest {
 
         assertEquals(userDto1, userDto2);
         verify(userRepository, times(1)).findById(userId);
+    }
+
+    @Test
+    void getUser_notFoundUser() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        assertThrows(UserIdException.class, () -> userService.getUser(userId));
+
     }
 
 }

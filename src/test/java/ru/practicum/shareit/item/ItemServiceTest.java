@@ -44,8 +44,6 @@ class ItemServiceTest {
     private BookingJpaRepository bookingRepository;
     @Mock
     private CommentJpaRepository commentRepository;
-    @Mock
-    private ItemRequestRepository requestRepository;
     @InjectMocks
     private ItemService itemService;
 
@@ -152,6 +150,26 @@ class ItemServiceTest {
     }
 
     @Test
+    void getItemsBySearch_whenEmpty_thenReturnEmptyList() {
+        List<ItemDto> newItemsDto = itemService.getItemsBySearch("");
+        assertEquals(List.of(), newItemsDto);
+    }
+
+    @Test
+    void getAllItemOwner_whenEmpty_thenReturnEmptyList() {
+        when(itemRepository.findAllByOwner_IdOrderById(userId)).thenReturn(List.of());
+        List<ItemWithBookingDto> newItemsDto = itemService.getAllItemOwner(userId);
+        assertEquals(List.of(), newItemsDto);
+    }
+
+    @Test
+    void getItemById_whenEmpty_thenReturnEmptyList() {
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+        assertThrows(ItemIdException.class, () -> itemService.getItemById(itemId, userId));
+
+    }
+
+    @Test
     void updateItem_whenItemNotFound_thenNItemIdException() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
@@ -196,9 +214,9 @@ class ItemServiceTest {
         commentDto.setText("comment");
         when(bookingRepository
                 .existsByItem_IdAndEndBeforeAndStatusAndBooker_Id(any(Long.class)
-                        ,any(LocalDateTime.class)
-                        ,any(Status.class),any(Long.class)))
-                        .thenReturn(true);
+                        , any(LocalDateTime.class)
+                        , any(Status.class), any(Long.class)))
+                .thenReturn(true);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
@@ -208,4 +226,5 @@ class ItemServiceTest {
         assertEquals(newCommentDto, commentDto);
         verify(commentRepository, times(1)).save(any(Comment.class));
     }
+
 }
