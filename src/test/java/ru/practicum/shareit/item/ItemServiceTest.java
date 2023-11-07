@@ -17,7 +17,6 @@ import ru.practicum.shareit.item.dto.ItemWithBookingDto;
 import ru.practicum.shareit.item.exeption.ItemIdException;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dao.UserJpaRepository;
@@ -213,9 +212,10 @@ class ItemServiceTest {
         commentDto.setAuthorName("userName");
         commentDto.setText("comment");
         when(bookingRepository
-                .existsByItem_IdAndEndBeforeAndStatusAndBooker_Id(any(Long.class)
-                        , any(LocalDateTime.class)
-                        , any(Status.class), any(Long.class)))
+                .existsByItem_IdAndEndBeforeAndStatusAndBooker_Id(any(Long.class),
+                        any(LocalDateTime.class),
+                        any(Status.class),
+                        any(Long.class)))
                 .thenReturn(true);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
