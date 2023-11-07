@@ -9,7 +9,7 @@ import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 
-@Component
+
 @AllArgsConstructor
 public class CommentMapper {
     public static CommentDto toCommentDto(Comment comment) {

@@ -3,9 +3,10 @@ package ru.practicum.shareit.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -14,7 +15,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class UserMapperTest {
 
     @Mock
@@ -43,21 +44,7 @@ class UserMapperTest {
         assertEquals(userDto, mappedDto);
     }
 
-    @Test
-    void toUser_withExistingUser() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        User mappedUser = userMapper.toUser(userDto, userId);
-        assertEquals(user, mappedUser);
-    }
-
-    @Test
-    void toUser_withNewUser() {
-        User newuser = userMapper.toNewUser(userDto);
-
-        User mappedUser = userMapper.toUser(userDto, userId);
-        assertEquals(newuser, mappedUser);
-    }
 
     @Test
     void toNewUser() {

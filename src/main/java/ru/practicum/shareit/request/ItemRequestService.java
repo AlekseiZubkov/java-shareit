@@ -17,7 +17,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
-import javax.validation.ValidationException;
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class ItemRequestService {
     private final BookingJpaRepository bookingRepository;
     private final ItemRequestRepository itemRequestRepository;
 
-
+    @Transactional
     public ItemRequestDto create(Long userId, ItemRequestDto itemRequestDto) {
         Optional<User> user = userRepository.findById(userId);
         itemRequestDto.setCreated(LocalDateTime.now());
@@ -44,6 +44,7 @@ public class ItemRequestService {
         return ItemRequestMapper.toItemRequestDto(itemRequest);
     }
 
+    @Transactional
     public List<ItemRequestDto> get(Long userId) {
         Optional<User> user = userRepository.findById(userId);
         if (!user.isPresent()) {
@@ -67,13 +68,12 @@ public class ItemRequestService {
         return itemRequestsDto;
     }
 
-
+    @Transactional
     public List<ItemRequestDto> getAll(Long userId, Long from, Long size) {
-        checkParamRequest(from, size);
         List<ItemRequestDto> itemRequestsDto = new ArrayList<>();
         PageRequest pageRequest = PageRequest.of(from.intValue() / size.intValue(), size.intValue(),
                 Sort.Direction.DESC, "created");
-        List<ItemRequest> itemRequests = itemRequestRepository.findAll(userId, pageRequest);
+        List<ItemRequest> itemRequests = itemRequestRepository.findAllNotRequesterId(userId, pageRequest);
         if (itemRequests.isEmpty()) {
             return new ArrayList<>();
         }
@@ -83,6 +83,7 @@ public class ItemRequestService {
         return itemRequestsDto;
     }
 
+    @Transactional
     public ItemRequestDto getByID(Long userId, Long requestId) {
         Optional<User> user = userRepository.findById(userId);
         Optional<ItemRequest> itemRequest = itemRequestRepository.findById(requestId);
@@ -108,13 +109,4 @@ public class ItemRequestService {
         return itemRequestDto;
     }
 
-    private void checkParamRequest(Long from, Long size) {
-        if (from < 0 || size < 0) {
-            throw new ValidationException("Параметры запроса отрицательные");
-        }
-        if (from == 0 && size == 0) {
-            throw new ValidationException("Параметры запроса равны 0");
-        }
-
-    }
 }

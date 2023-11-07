@@ -134,7 +134,11 @@ class ItemRequestServiceTest {
 
         ItemRequestDto itemRequestDto3 = itemRequestService.getByID(userId, requestId);
 
+
         assertEquals(itemRequestDto3.getId(), itemRequestDto1.getId());
+
+        assertEquals(itemRequestDto3, itemRequestDto1);
+
     }
 
     @Test
@@ -153,7 +157,7 @@ class ItemRequestServiceTest {
     void findAllByUser_whenArgumentField() {
         PageRequest pageRequest = PageRequest.of(0 / 5, 5,
                 Sort.Direction.DESC, "created");
-        when(itemRequestRepository.findAll(userId, pageRequest)).thenReturn(Collections.emptyList());
+        when(itemRequestRepository.findAllNotRequesterId(userId, pageRequest)).thenReturn(Collections.emptyList());
         List<ItemRequestDto> emptyList = Collections.unmodifiableList(itemRequestService
                 .getAll(userId, 0L, 5L));
         assertTrue(emptyList.isEmpty());
@@ -233,7 +237,7 @@ class ItemRequestServiceTest {
                 Sort.Direction.DESC, "created");
         List<ItemRequest> itemRequests = Collections.singletonList(itemRequest);
 
-        when(itemRequestRepository.findAll(userId, pageRequest)).thenReturn(itemRequests);
+        when(itemRequestRepository.findAllNotRequesterId(userId, pageRequest)).thenReturn(itemRequests);
         when(itemRepository.findAllByRequest_id(itemRequest.getId())).thenReturn(Collections.singletonList(item));
 
 
@@ -241,6 +245,6 @@ class ItemRequestServiceTest {
 
         assertEquals(itemRequestDto1.getId(), result.get(0).getId());
         assertEquals(itemRequestDto1.getDescription(), result.get(0).getDescription());
-        verify(itemRequestRepository).findAll(userId, pageRequest);
+        verify(itemRequestRepository).findAllNotRequesterId(userId, pageRequest);
     }
 }

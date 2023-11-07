@@ -37,7 +37,6 @@ public class BookingService {
     private final ItemJpaRepository itemRepository;
     private final UserJpaRepository userRepository;
     private final BookingJpaRepository bookingRepository;
-    private final BookingMapper bookingMapper;
 
     @Transactional
     public BookingDtoOut create(BookingDto bookingDto, Long bookerId) {
@@ -56,7 +55,7 @@ public class BookingService {
             throw new BookingException("Предмет не может быть взят в аренду у себя");
         }
         User booker = userRepository.findById(bookerId).get();
-        Booking newBooking = BookingMapper.toBooking(bookingDto,item.get(),booker,Status.WAITING);
+        Booking newBooking = BookingMapper.toBooking(bookingDto, item.get(), booker, Status.WAITING);
 
         bookingRepository.save(newBooking);
         return BookingMapper.toBookingDtoOut(newBooking);
@@ -66,9 +65,7 @@ public class BookingService {
     public BookingDtoOut updateBooking(Long ownerId, Long bookingId, boolean approved) {
         Optional<Booking> booking = bookingRepository.findById(bookingId);
         if (booking.isPresent()) {
-            System.out.println("bookingbooking" + booking);
             Booking updatedBooking = booking.get();
-            System.out.println("updatedBooking" + updatedBooking);
             if ((updatedBooking.getStatus().equals(Status.APPROVED)
                     || updatedBooking.getStatus().equals(Status.REJECTED))
             ) {
@@ -116,7 +113,6 @@ public class BookingService {
 
     @Transactional(readOnly = true)
     public List<BookingDtoOut> findAllBookingsByBooker(Long userId, String stateStr, Long from, Long size) {
-        checkParamRequest(from, size);
         State state;
         PageRequest pageRequest = PageRequest.of(from.intValue() / size.intValue(), size.intValue(), Sort.Direction.DESC, "start");
         try {
@@ -125,9 +121,8 @@ public class BookingService {
             throw new StateException("Unknown state: " + stateStr);
         }
         List<Booking> bookingsL = bookingRepository.findByBookerId(userId, pageRequest);
-        System.out.println("bookingsL-------------" + bookingsL);
         List<Booking> bookings = getBookingsFromState(bookingsL, state);
-        System.out.println("bookings-------------" + bookings);
+
         if (bookings.isEmpty()) {
             throw new BookingException("Не найдено бронирований у этого пользователя");
         }
@@ -140,7 +135,6 @@ public class BookingService {
 
     @Transactional(readOnly = true)
     public List<BookingDtoOut> findAllBookingsByOwner(Long userId, String stateStr, Long from, Long size) {
-        checkParamRequest(from, size);
         State state;
         PageRequest pageRequest = PageRequest.of(from.intValue() / size.intValue(), size.intValue());
         try {
@@ -172,10 +166,10 @@ public class BookingService {
                         .collect(Collectors.toList());
             case PAST:
                 List<Booking> bookingList = bookings.stream()
-                    .filter(booking ->
-                            booking.getStatus().equals(Status.APPROVED) &&
-                                    booking.getEnd().isBefore(LocalDateTime.now()))
-                    .collect(Collectors.toList());
+                        .filter(booking ->
+                                booking.getStatus().equals(Status.APPROVED) &&
+                                        booking.getEnd().isBefore(LocalDateTime.now()))
+                        .collect(Collectors.toList());
                 return bookingList;
             case FUTURE:
                 return bookings.stream()
@@ -195,12 +189,4 @@ public class BookingService {
         }
     }
 
-    private void checkParamRequest(Long from, Long size) {
-        if (from < 0 || size < 0) {
-            throw new ValidationException("Параметры запроса отрицательные");
-        }
-        if (from == 0 && size == 0) {
-            throw new ValidationException("Параметры запроса равны 0");
-        }
-    }
 }

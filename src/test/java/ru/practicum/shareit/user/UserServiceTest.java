@@ -47,10 +47,7 @@ class UserServiceTest {
 
     @Test
     void createUser() {
-        when(userMapper.toNewUser(userDto1)).thenReturn(user1);
         when(userRepository.save(user1)).thenReturn(user1);
-        when(userMapper.toUserDto(user1)).thenReturn(userDto1);
-
         userDto2 = userService.create(userDto1);
 
         assertEquals(userDto1, userDto2);
@@ -62,8 +59,6 @@ class UserServiceTest {
         List<UserDto> expectedUsersDto = Arrays.asList(userDto1, new UserDto());
         List<User> actualUsers = Arrays.asList(user1, new User());
         when(userRepository.findAll()).thenReturn(actualUsers);
-        when(userMapper.toUserDto(user1)).thenReturn(userDto1);
-        when(userMapper.toUserDto(user2)).thenReturn(userDto2);
 
         List<UserDto> actualUsersDto = userService.getAll();
 
@@ -82,10 +77,7 @@ class UserServiceTest {
 
     @Test
     void updateUser() {
-        when(userMapper.toUser(userDto1, user1.getId())).thenReturn(user1);
         when(userRepository.save(user1)).thenReturn(user1);
-        when(userMapper.toUserDto(user1)).thenReturn(userDto1);
-
         userDto2 = userService.updateUser(userDto1, userId);
 
         assertEquals(userDto1, userDto2);
@@ -94,7 +86,6 @@ class UserServiceTest {
 
     @Test
     void updateUser_doublEmail_throwEmailException() {
-        when(userMapper.toUser(userDto1, user1.getId())).thenReturn(user1);
         user2.setEmail(user1.getEmail());
         when(userRepository.findAll()).thenReturn(List.of(user2));
         assertThrows(EmailException.class, () -> userService.updateUser(userDto1, 1L));
@@ -111,7 +102,6 @@ class UserServiceTest {
     @Test
     void getUser() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
-        when(userMapper.toUserDto(user1)).thenReturn(userDto1);
 
         userDto2 = userService.getUser(userId);
 

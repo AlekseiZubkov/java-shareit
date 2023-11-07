@@ -11,7 +11,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import java.util.ArrayList;
 import java.util.Optional;
 
-@Component
+
 @AllArgsConstructor
 public class ItemMapper {
 

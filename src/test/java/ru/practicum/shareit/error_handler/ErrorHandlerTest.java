@@ -40,7 +40,7 @@ public class ErrorHandlerTest {
 
     @InjectMocks
     private ErrorHandler errorHandler;
-    //Только для прохождения проверки что пропушен 1 класс
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -55,7 +55,6 @@ public class ErrorHandlerTest {
         verify(emailException).getMessage();
 
     }
-
 
 
     @Test

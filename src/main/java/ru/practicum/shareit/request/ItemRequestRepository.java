@@ -14,6 +14,6 @@ public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> 
     @Query(" SELECT ir FROM ItemRequest ir " +
             "WHERE ir.requester.id <> ?1 " +
             "order by ir.created")
-    List<ItemRequest> findAll(Long requesterId, PageRequest pageRequest);
+    List<ItemRequest> findAllNotRequesterId(Long requesterId, PageRequest pageRequest);
 
 }

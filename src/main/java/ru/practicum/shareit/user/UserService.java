@@ -19,14 +19,14 @@ import java.util.Optional;
 @AllArgsConstructor
 public class UserService {
     private final UserJpaRepository userRepository;
-    private final UserMapper userMapper;
+
 
     @Transactional(readOnly = true)
     public UserDto getUser(Long id) {
         log.info("Выполняется операция запроса пользователя");
         Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
-            return userMapper.toUserDto(user.get());
+            return UserMapper.toUserDto(user.get());
         } else throw new UserIdException("Пользователь не найден");
     }
 
@@ -36,7 +36,7 @@ public class UserService {
         List<User> users = userRepository.findAll();
         List<UserDto> userDtos = new ArrayList<>();
         for (User user : users) {
-            userDtos.add(userMapper.toUserDto(user));
+            userDtos.add(UserMapper.toUserDto(user));
         }
         return userDtos;
     }
@@ -44,19 +44,20 @@ public class UserService {
     @Transactional
     public UserDto create(UserDto user) {
         log.info("Выполняется операция создания пользователя");
-        User newUser = userMapper.toNewUser(user);
-        return userMapper.toUserDto(userRepository.save(newUser));
+        User newUser = UserMapper.toNewUser(user);
+        return UserMapper.toUserDto(userRepository.save(newUser));
     }
 
     @Transactional
     public UserDto updateUser(UserDto userDto, Long id) {
         log.info("Выполняется операция обновления пользователя");
-        User user = userMapper.toUser(userDto, id);
+        Optional<User> userOptional = userRepository.findById(id);
+        User user = UserMapper.toUser(userDto, id, userOptional);
+
         if (Objects.nonNull(userDto.getEmail())) {
-            System.out.println("nen");
             checkEmail(user);
         }
-        return userMapper.toUserDto(userRepository.save(user));
+        return UserMapper.toUserDto(userRepository.save(user));
     }
 
     @Transactional
@@ -69,8 +70,6 @@ public class UserService {
     private void checkEmail(User checkedUser) {
         List<User> users = userRepository.findAll();
         for (User user : users) {
-            System.out.println("checkedUser" + checkedUser);
-            System.out.println("user1" + user);
             if (user.getEmail().equals(checkedUser.getEmail()) && !Objects.equals(user.getId(), checkedUser.getId())) {
                 throw new EmailException("Email  повторяется");
             }

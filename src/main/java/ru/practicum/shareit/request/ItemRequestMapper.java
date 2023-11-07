@@ -7,7 +7,7 @@ import ru.practicum.shareit.user.User;
 
 import java.util.List;
 
-@Component
+
 public class ItemRequestMapper {
     public static ItemRequest toItemRequest(ItemRequestDto itemRequestDto, User user) {
         return new ItemRequest(
