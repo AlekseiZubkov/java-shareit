@@ -10,10 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserMapperTest {
@@ -43,7 +40,6 @@ class UserMapperTest {
         UserDto mappedDto = userMapper.toUserDto(user);
         assertEquals(userDto, mappedDto);
     }
-
 
 
     @Test

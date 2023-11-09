@@ -1,17 +1,13 @@
 package ru.practicum.shareit.user;
 
-import lombok.AllArgsConstructor;
-import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.Objects;
 import java.util.Optional;
 
 
-@AllArgsConstructor
-
 public class UserMapper {
-    private static  UserJpaRepository userRepository;
+
 
     public static UserDto toUserDto(User user) {
         return new UserDto(

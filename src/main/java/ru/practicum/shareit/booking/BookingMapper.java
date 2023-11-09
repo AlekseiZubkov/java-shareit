@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import lombok.AllArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.booking.model.Booking;
