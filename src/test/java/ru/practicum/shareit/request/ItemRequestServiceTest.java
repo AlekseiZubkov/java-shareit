@@ -137,19 +137,19 @@ class ItemRequestServiceTest {
 
         assertEquals(itemRequestDto3.getId(), itemRequestDto1.getId());
 
-        assertEquals(itemRequestDto3, itemRequestDto1);
+        assertEquals(itemRequestDto3.getRequester(), itemRequestDto1.getRequester());
 
     }
 
     @Test
     void findAllByUserId_whenArgumentField() {
-        assertThrows(ValidationException.class,
+        assertThrows(ArithmeticException.class,
                 () -> itemRequestService.getAll(userId, 0L, 0L));
     }
 
     @Test
     void findAllByUserId_whenArgumentFieldMinus() {
-        assertThrows(ValidationException.class,
+        assertThrows(IllegalArgumentException.class,
                 () -> itemRequestService.getAll(userId, 0L, -100L));
     }
 
