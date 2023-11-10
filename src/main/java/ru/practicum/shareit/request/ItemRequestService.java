@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dao.BookingJpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.dao.ItemJpaRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -17,7 +17,6 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dao.UserJpaRepository;
 import ru.practicum.shareit.user.exeption.UserIdException;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +28,6 @@ import java.util.Optional;
 public class ItemRequestService {
     private final ItemJpaRepository itemRepository;
     private final UserJpaRepository userRepository;
-    private final BookingJpaRepository bookingRepository;
     private final ItemRequestRepository itemRequestRepository;
 
     @Transactional
@@ -44,7 +42,7 @@ public class ItemRequestService {
         return ItemRequestMapper.toItemRequestDto(itemRequest);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ItemRequestDto> get(Long userId) {
         Optional<User> user = userRepository.findById(userId);
         if (!user.isPresent()) {
@@ -68,7 +66,7 @@ public class ItemRequestService {
         return itemRequestsDto;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ItemRequestDto> getAll(Long userId, Long from, Long size) {
         List<ItemRequestDto> itemRequestsDto = new ArrayList<>();
         PageRequest pageRequest = PageRequest.of(from.intValue() / size.intValue(), size.intValue(),
@@ -83,7 +81,7 @@ public class ItemRequestService {
         return itemRequestsDto;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ItemRequestDto getByID(Long userId, Long requestId) {
         Optional<User> user = userRepository.findById(userId);
         Optional<ItemRequest> itemRequest = itemRequestRepository.findById(requestId);
