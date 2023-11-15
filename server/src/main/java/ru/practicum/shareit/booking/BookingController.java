@@ -2,11 +2,13 @@ package ru.practicum.shareit.booking;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -15,6 +17,7 @@ import java.util.List;
 @RestController
 @Slf4j
 @AllArgsConstructor
+@Validated
 @RequestMapping(path = "/bookings")
 public class BookingController {
 
@@ -44,8 +47,8 @@ public class BookingController {
     public List<BookingDtoOut> findAllBookingsByBooker(
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") long from,
-            @RequestParam(defaultValue = "10") long size) {
+            @RequestParam(defaultValue = "0") @Min(value = 0) long from,
+            @RequestParam(defaultValue = "10") @Min(value = 0) long size) {
         return bookingService.findAllBookingsByBooker(userId, state, from, size);
     }
 
@@ -53,8 +56,8 @@ public class BookingController {
     public List<BookingDtoOut> findAllByOwner(
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") long from,
-            @RequestParam(defaultValue = "10") long size) {
+            @RequestParam(defaultValue = "0") @Min(value = 0) long from,
+            @RequestParam(defaultValue = "10") @Min(value = 0) long size) {
         return bookingService.findAllBookingsByOwner(userId, state, from, size);
     }
 }
