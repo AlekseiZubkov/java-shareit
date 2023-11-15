@@ -47,8 +47,8 @@ public class BookingController {
     public List<BookingDtoOut> findAllBookingsByBooker(
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") @Min(value = 0) long from,
-            @RequestParam(defaultValue = "10") @Min(value = 0) long size) {
+            @RequestParam(defaultValue = "0")  long from,
+            @RequestParam(defaultValue = "10")  long size) {
         return bookingService.findAllBookingsByBooker(userId, state, from, size);
     }
 
@@ -56,8 +56,8 @@ public class BookingController {
     public List<BookingDtoOut> findAllByOwner(
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") @Min(value = 0) long from,
-            @RequestParam(defaultValue = "10") @Min(value = 0) long size) {
+            @RequestParam(defaultValue = "0")  long from,
+            @RequestParam(defaultValue = "10")  long size) {
         return bookingService.findAllBookingsByOwner(userId, state, from, size);
     }
 }
